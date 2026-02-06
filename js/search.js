@@ -136,9 +136,117 @@ class SearchEngine {
 
     // Perform search with filters
     async search(query, filters = {}) {
-        // In a real application, this would make actual API calls
-        // For now, we simulate with mock data
+        // Try to fetch from real API first, fallback to mock data if it fails
+        try {
+            const results = await this.searchRealAPI(query, filters);
+            if (results && results.length > 0) {
+                return {
+                    results: results,
+                    total: results.length,
+                    query: query,
+                    filters: filters,
+                    source: 'api'
+                };
+            }
+        } catch (error) {
+            console.warn('API search failed, using mock data:', error);
+        }
         
+        // Fallback to mock data
+        return this.searchMockData(query, filters);
+    }
+
+    // Search real dati.gov.it API
+    async searchRealAPI(query, filters = {}) {
+        const results = [];
+        
+        // Search dati.gov.it if not filtered to other sources
+        if (!filters.source || filters.source === 'all' || filters.source === 'datigov') {
+            try {
+                const datigov = await this.searchDatiGovIt(query, filters);
+                results.push(...datigov);
+            } catch (error) {
+                console.warn('dati.gov.it search failed:', error);
+            }
+        }
+        
+        return results;
+    }
+
+    // Search dati.gov.it CKAN API
+    async searchDatiGovIt(query, filters = {}) {
+        const baseUrl = 'https://www.dati.gov.it/api/3/action/package_search';
+        const params = new URLSearchParams({
+            q: query,
+            rows: 20
+        });
+
+        // Add category filter if specified
+        if (filters.category && filters.category !== 'all') {
+            params.append('fq', `tags:${filters.category}`);
+        }
+
+        const url = `${baseUrl}?${params.toString()}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.success || !data.result || !data.result.results) {
+            return [];
+        }
+
+        // Transform API results to our format
+        return data.result.results.map(item => ({
+            id: item.id || Math.random().toString(36).substr(2, 9),
+            title: item.title || 'Senza titolo',
+            description: item.notes || 'Nessuna descrizione disponibile',
+            source: 'datigov',
+            category: this.extractCategory(item.tags),
+            date: item.metadata_modified || item.metadata_created || new Date().toISOString().split('T')[0],
+            url: `https://www.dati.gov.it/view-dataset/dataset?id=${item.name}`,
+            tags: (item.tags || []).map(tag => tag.display_name || tag.name || tag).slice(0, 5)
+        }));
+    }
+
+    // Extract category from tags
+    extractCategory(tags) {
+        if (!tags || tags.length === 0) return 'generale';
+        
+        const categoryMap = {
+            'ambiente': 'ambiente',
+            'economia': 'economia',
+            'salute': 'salute',
+            'trasporti': 'trasporti',
+            'istruzione': 'istruzione',
+            'lavoro': 'lavoro',
+            'demographic': 'demografia',
+            'popolazione': 'demografia'
+        };
+
+        for (const tag of tags) {
+            const tagName = (tag.display_name || tag.name || tag).toLowerCase();
+            for (const [key, value] of Object.entries(categoryMap)) {
+                if (tagName.includes(key)) {
+                    return value;
+                }
+            }
+        }
+
+        return 'generale';
+    }
+
+    // Search mock data (fallback)
+    searchMockData(query, filters = {}) {
         return new Promise((resolve) => {
             setTimeout(() => {
                 let results = [...this.mockResults];
@@ -182,7 +290,8 @@ class SearchEngine {
                     results: results,
                     total: results.length,
                     query: query,
-                    filters: filters
+                    filters: filters,
+                    source: 'mock'
                 });
             }, 800); // Simulate network delay
         });
