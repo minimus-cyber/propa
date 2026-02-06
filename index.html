@@ -19,6 +19,9 @@
                 <h1>Pro PA</h1>
             </div>
             <nav class="nav">
+                <button class="btn btn-icon" id="analyticsBtn" title="Analisi dati">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
                 <button class="btn btn-icon" id="historyBtn" title="Cronologia">
                     <i class="fas fa-history"></i>
                 </button>
@@ -252,6 +255,52 @@
         </div>
     </div>
 
+    <!-- Analytics Modal -->
+    <div id="analyticsModal" class="modal">
+        <div class="modal-content analytics-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-bar"></i> Analisi Dati e Statistiche</h3>
+                <button class="btn-close" id="closeAnalytics">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="analytics-tabs">
+                    <button class="analytics-tab active" data-tab="results">Risultati</button>
+                    <button class="analytics-tab" data-tab="history">Cronologia</button>
+                    <button class="analytics-tab" data-tab="bookmarks">Segnalibri</button>
+                </div>
+                
+                <!-- Results Analytics Tab -->
+                <div id="resultsAnalytics" class="analytics-tab-content active">
+                    <div id="resultsAnalyticsContent" class="analytics-content">
+                        <div class="empty-state">
+                            <i class="fas fa-chart-bar"></i>
+                            <p>Effettua una ricerca per visualizzare le statistiche</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- History Analytics Tab -->
+                <div id="historyAnalytics" class="analytics-tab-content">
+                    <div id="historyAnalyticsContent" class="analytics-content">
+                        <!-- History analytics will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Bookmarks Analytics Tab -->
+                <div id="bookmarksAnalytics" class="analytics-tab-content">
+                    <div id="bookmarksAnalyticsContent" class="analytics-content">
+                        <!-- Bookmarks analytics will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="exportAnalytics">
+                    <i class="fas fa-download"></i> Esporta Analisi (JSON)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
@@ -262,10 +311,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.7/docxtemplater.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/search.js"></script>
     <script src="js/export.js"></script>
+    <script src="js/analytics.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

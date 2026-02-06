@@ -72,6 +72,27 @@ class ProPAApp {
             exportManager.exportToWord();
         });
 
+        // Analytics modal
+        document.getElementById('analyticsBtn').addEventListener('click', () => {
+            this.showAnalyticsModal();
+        });
+
+        document.getElementById('closeAnalytics').addEventListener('click', () => {
+            this.closeModal('analyticsModal');
+        });
+
+        document.getElementById('exportAnalytics').addEventListener('click', () => {
+            analyticsManager.exportAnalytics();
+            this.showToast('Analisi esportate con successo!', 'success');
+        });
+
+        // Analytics tabs
+        document.querySelectorAll('.analytics-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                this.switchAnalyticsTab(e.target.dataset.tab);
+            });
+        });
+
         // History modal
         document.getElementById('historyBtn').addEventListener('click', () => {
             this.showHistoryModal();
@@ -95,7 +116,7 @@ class ProPAApp {
         });
 
         // Close modals when clicking outside
-        ['historyModal', 'bookmarksModal', 'loginModal', 'registerModal', 'userModal'].forEach(modalId => {
+        ['historyModal', 'bookmarksModal', 'loginModal', 'registerModal', 'userModal', 'analyticsModal'].forEach(modalId => {
             document.getElementById(modalId).addEventListener('click', (e) => {
                 if (e.target.id === modalId) {
                     this.closeModal(modalId);
@@ -151,6 +172,9 @@ class ProPAApp {
 
             // Update export manager
             exportManager.setResults(this.currentResults);
+
+            // Update analytics manager
+            analyticsManager.setResults(this.currentResults);
 
         } catch (error) {
             console.error('Search error:', error);
@@ -506,6 +530,372 @@ class ProPAApp {
         } else {
             this.showToast(result.message, 'error');
         }
+    }
+
+    // Analytics Modal
+    showAnalyticsModal() {
+        const modal = document.getElementById('analyticsModal');
+        
+        // Show modal
+        modal.classList.add('active');
+        
+        // Load data for the active tab
+        this.switchAnalyticsTab('results');
+    }
+
+    switchAnalyticsTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.analytics-tab').forEach(tab => {
+            if (tab.dataset.tab === tabName) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        // Update tab content
+        document.querySelectorAll('.analytics-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Show selected tab content
+        const contentId = tabName + 'Analytics';
+        document.getElementById(contentId).classList.add('active');
+
+        // Load data for the selected tab
+        switch(tabName) {
+            case 'results':
+                this.loadResultsAnalytics();
+                break;
+            case 'history':
+                this.loadHistoryAnalytics();
+                break;
+            case 'bookmarks':
+                this.loadBookmarksAnalytics();
+                break;
+        }
+    }
+
+    loadResultsAnalytics() {
+        const container = document.getElementById('resultsAnalyticsContent');
+        const analysis = analyticsManager.analyzeResults();
+
+        if (!analysis) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-chart-bar"></i>
+                    <p>Effettua una ricerca per visualizzare le statistiche</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-database"></i></div>
+                    <div class="analytics-card-value">${analysis.total}</div>
+                    <div class="analytics-card-label">Risultati Totali</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-tags"></i></div>
+                    <div class="analytics-card-value">${analysis.tags.length}</div>
+                    <div class="analytics-card-label">Tag Unici</div>
+                </div>
+            </div>
+        `;
+
+        // Source distribution
+        html += `
+            <div class="analytics-section">
+                <h4><i class="fas fa-chart-pie"></i> Distribuzione per Fonte</h4>
+                <div class="chart-container">
+                    <canvas id="sourceChart"></canvas>
+                </div>
+        `;
+        
+        Object.entries(analysis.bySource).forEach(([source, data]) => {
+            html += `
+                <div class="analytics-stat">
+                    <span class="stat-label">${this.escapeHtml(data.name)}</span>
+                    <span class="stat-value">
+                        ${data.count}
+                        <span class="stat-percentage">(${data.percentage}%)</span>
+                    </span>
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        // Category distribution
+        html += `
+            <div class="analytics-section">
+                <h4><i class="fas fa-folder"></i> Distribuzione per Categoria</h4>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        `;
+
+        // Top tags
+        if (analysis.tags.length > 0) {
+            html += `
+                <div class="analytics-section">
+                    <h4><i class="fas fa-tags"></i> Tag Più Utilizzati</h4>
+                    <div class="tag-cloud">
+            `;
+            
+            analysis.tags.forEach(tagData => {
+                html += `
+                    <div class="tag-cloud-item">
+                        <span>${this.escapeHtml(tagData.tag)}</span>
+                        <span class="tag-cloud-count">${tagData.count}</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+        }
+
+        container.innerHTML = html;
+
+        // Create charts
+        this.createSourceChart(analysis.bySource);
+        this.createCategoryChart(analysis.byCategory);
+    }
+
+    loadHistoryAnalytics() {
+        const container = document.getElementById('historyAnalyticsContent');
+        const analysis = analyticsManager.analyzeHistory();
+
+        if (!analysis) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <p>Nessuna cronologia disponibile</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-search"></i></div>
+                    <div class="analytics-card-value">${analysis.totalSearches}</div>
+                    <div class="analytics-card-label">Ricerche Totali</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-calendar-week"></i></div>
+                    <div class="analytics-card-value">${analysis.recentActivity.count}</div>
+                    <div class="analytics-card-label">Ultimi 7 Giorni</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="analytics-card-value">${analysis.recentActivity.averagePerDay}</div>
+                    <div class="analytics-card-label">Media Giornaliera</div>
+                </div>
+            </div>
+        `;
+
+        // Top search terms
+        if (analysis.topSearchTerms.length > 0) {
+            html += `
+                <div class="analytics-section">
+                    <h4><i class="fas fa-trophy"></i> Termini Più Cercati</h4>
+            `;
+            
+            analysis.topSearchTerms.forEach(item => {
+                html += `
+                    <div class="analytics-stat">
+                        <span class="stat-label">${this.escapeHtml(item.term)}</span>
+                        <span class="stat-value">${item.count}</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+        }
+
+        // Filter usage
+        html += `
+            <div class="analytics-section">
+                <h4><i class="fas fa-filter"></i> Utilizzo Filtri</h4>
+                <div class="analytics-stat">
+                    <span class="stat-label">Ricerche con intervallo date</span>
+                    <span class="stat-value">${analysis.filterUsage.dateRangeUsage}</span>
+                </div>
+        `;
+        
+        if (Object.keys(analysis.filterUsage.sourceFilters).length > 0) {
+            html += '<div style="margin-top: 15px;"><strong>Filtri fonte:</strong><br>';
+            Object.entries(analysis.filterUsage.sourceFilters).forEach(([source, count]) => {
+                html += `
+                    <div class="analytics-stat">
+                        <span class="stat-label">${this.escapeHtml(source)}</span>
+                        <span class="stat-value">${count}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        html += '</div>';
+
+        container.innerHTML = html;
+    }
+
+    loadBookmarksAnalytics() {
+        const container = document.getElementById('bookmarksAnalyticsContent');
+        const analysis = analyticsManager.analyzeBookmarks();
+
+        if (!analysis) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-bookmark"></i>
+                    <p>Nessun segnalibro salvato</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-card-icon"><i class="fas fa-bookmark"></i></div>
+                    <div class="analytics-card-value">${analysis.total}</div>
+                    <div class="analytics-card-label">Segnalibri Totali</div>
+                </div>
+            </div>
+        `;
+
+        // By source
+        html += `
+            <div class="analytics-section">
+                <h4><i class="fas fa-database"></i> Segnalibri per Fonte</h4>
+        `;
+        
+        Object.entries(analysis.bySource).forEach(([source, data]) => {
+            html += `
+                <div class="analytics-stat">
+                    <span class="stat-label">${this.escapeHtml(data.name)}</span>
+                    <span class="stat-value">${data.count}</span>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+
+        // By category
+        html += `
+            <div class="analytics-section">
+                <h4><i class="fas fa-folder"></i> Segnalibri per Categoria</h4>
+        `;
+        
+        Object.entries(analysis.byCategory).forEach(([category, count]) => {
+            html += `
+                <div class="analytics-stat">
+                    <span class="stat-label">${this.escapeHtml(category)}</span>
+                    <span class="stat-value">${count}</span>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+
+        // Most recent
+        if (analysis.mostRecent.length > 0) {
+            html += `
+                <div class="analytics-section">
+                    <h4><i class="fas fa-clock"></i> Segnalibri Recenti</h4>
+            `;
+            
+            analysis.mostRecent.forEach(item => {
+                const date = new Date(item.bookmarkedAt);
+                html += `
+                    <div class="timeline-item">
+                        <div class="timeline-item-title">${this.escapeHtml(item.title)}</div>
+                        <div class="timeline-item-meta">
+                            ${this.escapeHtml(item.source)} - ${date.toLocaleDateString('it-IT')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    createSourceChart(bySource) {
+        const ctx = document.getElementById('sourceChart');
+        if (!ctx || !window.Chart) return;
+
+        const labels = Object.values(bySource).map(s => s.name);
+        const data = Object.values(bySource).map(s => s.count);
+        const colors = ['#0066CC', '#004C99', '#FF9900', '#28a745'];
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    createCategoryChart(byCategory) {
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx || !window.Chart) return;
+
+        const labels = Object.keys(byCategory);
+        const data = Object.values(byCategory).map(c => c.count);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Numero di risultati',
+                    data: data,
+                    backgroundColor: '#0066CC',
+                    borderColor: '#004C99',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
     }
 
     handleLogout() {
