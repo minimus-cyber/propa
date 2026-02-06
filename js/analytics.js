@@ -86,6 +86,12 @@ class AnalyticsManager {
         
         this.currentResults.forEach(result => {
             const date = new Date(result.date);
+            
+            // Validate date before using
+            if (isNaN(date.getTime())) {
+                return; // Skip invalid dates
+            }
+            
             const year = date.getFullYear();
             const month = date.toLocaleDateString('it-IT', { year: 'numeric', month: 'long' });
             
@@ -310,7 +316,7 @@ class AnalyticsManager {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `propa-analytics-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `pro-pa-analytics-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

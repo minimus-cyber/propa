@@ -4,6 +4,7 @@ class ProPAApp {
     constructor() {
         this.currentResults = [];
         this.currentFilters = {};
+        this.charts = {}; // Store chart instances to prevent memory leaks
         this.init();
     }
 
@@ -832,11 +833,21 @@ class ProPAApp {
         const ctx = document.getElementById('sourceChart');
         if (!ctx || !window.Chart) return;
 
+        // Destroy previous chart instance to prevent memory leaks
+        if (this.charts.sourceChart) {
+            this.charts.sourceChart.destroy();
+        }
+
         const labels = Object.values(bySource).map(s => s.name);
         const data = Object.values(bySource).map(s => s.count);
-        const colors = ['#0066CC', '#004C99', '#FF9900', '#28a745'];
+        
+        // Generate colors dynamically for any number of sources
+        const colors = labels.map((_, i) => {
+            const baseColors = ['#0066CC', '#004C99', '#FF9900', '#28a745', '#dc3545', '#6610f2', '#fd7e14'];
+            return baseColors[i % baseColors.length];
+        });
 
-        new Chart(ctx, {
+        this.charts.sourceChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -863,10 +874,15 @@ class ProPAApp {
         const ctx = document.getElementById('categoryChart');
         if (!ctx || !window.Chart) return;
 
+        // Destroy previous chart instance to prevent memory leaks
+        if (this.charts.categoryChart) {
+            this.charts.categoryChart.destroy();
+        }
+
         const labels = Object.keys(byCategory);
         const data = Object.values(byCategory).map(c => c.count);
 
-        new Chart(ctx, {
+        this.charts.categoryChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
