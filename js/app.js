@@ -1,6 +1,6 @@
 // app.js - Main application logic
 
-class ProPAApp {
+class OmniPAApp {
     constructor() {
         this.currentResults = [];
         this.currentFilters = {};
@@ -11,6 +11,7 @@ class ProPAApp {
         this.setupEventListeners();
         this.loadSavedData();
         this.updateUserUI();
+        this.renderSourceSearches();
     }
 
     // Helper method to escape HTML and prevent XSS
@@ -37,11 +38,11 @@ class ProPAApp {
     }
 
     setupEventListeners() {
-        // Search functionality
-        document.getElementById('searchBtn').addEventListener('click', () => this.performSearch());
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        // Unified search functionality
+        document.getElementById('unifiedSearchBtn').addEventListener('click', () => this.performUnifiedSearch());
+        document.getElementById('unifiedSearchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                this.performSearch();
+                this.performUnifiedSearch();
             }
         });
 
@@ -118,8 +119,135 @@ class ProPAApp {
         });
     }
 
+    renderSourceSearches() {
+        const container = document.getElementById('sourceSearches');
+        const sources = searchEngine.getAllSources();
+        
+        container.innerHTML = sources.map(source => `
+            <div class="source-search-item">
+                <div class="source-header">
+                    <i class="fas fa-database"></i>
+                    <h4>${this.escapeHtml(source.name)}</h4>
+                </div>
+                <div class="source-search-bar">
+                    <input 
+                        type="text" 
+                        class="source-search-input" 
+                        placeholder="Cerca in ${this.escapeHtml(source.name)}..."
+                        data-source="${source.id}"
+                    >
+                    <button class="btn btn-sm btn-primary source-search-btn" data-source="${source.id}">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        // Add event listeners for source searches
+        document.querySelectorAll('.source-search-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const sourceId = e.currentTarget.dataset.source;
+                this.performSourceSearch(sourceId);
+            });
+        });
+
+        document.querySelectorAll('.source-search-input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const sourceId = e.currentTarget.dataset.source;
+                    this.performSourceSearch(sourceId);
+                }
+            });
+        });
+    }
+
+    async performUnifiedSearch() {
+        const query = document.getElementById('unifiedSearchInput').value.trim();
+        
+        if (!query) {
+            this.showToast('Inserisci un termine di ricerca', 'error');
+            return;
+        }
+
+        // Get filters
+        this.currentFilters = {
+            source: 'all',
+            category: document.getElementById('categoryFilter').value,
+            dateFrom: document.getElementById('dateFrom').value,
+            dateTo: document.getElementById('dateTo').value
+        };
+
+        // Show loading
+        this.showLoading(true);
+        document.getElementById('resultsSection').classList.add('active');
+
+        try {
+            // Perform search across all sources
+            const searchResult = await searchEngine.search(query, this.currentFilters);
+            this.currentResults = searchResult.results;
+
+            // Save to history
+            storageManager.addToHistory(query, this.currentFilters);
+
+            // Display results
+            this.displayResults(searchResult);
+
+            // Update export manager
+            exportManager.setResults(this.currentResults);
+
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showToast('Errore durante la ricerca', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async performSourceSearch(sourceId) {
+        const input = document.querySelector(`.source-search-input[data-source="${sourceId}"]`);
+        const query = input.value.trim();
+        
+        if (!query) {
+            this.showToast('Inserisci un termine di ricerca', 'error');
+            return;
+        }
+
+        // Set filter to specific source
+        this.currentFilters = {
+            source: sourceId,
+            category: document.getElementById('categoryFilter').value,
+            dateFrom: document.getElementById('dateFrom').value,
+            dateTo: document.getElementById('dateTo').value
+        };
+
+        // Show loading
+        this.showLoading(true);
+        document.getElementById('resultsSection').classList.add('active');
+
+        try {
+            // Perform search for specific source
+            const searchResult = await searchEngine.search(query, this.currentFilters);
+            this.currentResults = searchResult.results;
+
+            // Save to history
+            storageManager.addToHistory(query, this.currentFilters);
+
+            // Display results
+            this.displayResults(searchResult);
+
+            // Update export manager
+            exportManager.setResults(this.currentResults);
+
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showToast('Errore durante la ricerca', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
     async performSearch() {
-        const query = document.getElementById('searchInput').value.trim();
+        const query = document.getElementById('unifiedSearchInput').value.trim();
         
         if (!query) {
             this.showToast('Inserisci un termine di ricerca', 'error');
@@ -531,6 +659,6 @@ window.showToast = function(message, type) {
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new ProPAApp();
-    console.log('Pro PA Application initialized');
+    const app = new OmniPAApp();
+    console.log('OmniPA Application initialized');
 });

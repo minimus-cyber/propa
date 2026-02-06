@@ -4,24 +4,144 @@ class SearchEngine {
     constructor() {
         this.dataSources = {
             datigov: {
-                name: 'dati.gov.it',
+                id: 'datigov',
+                name: 'Dati.gov.it',
                 url: 'https://www.dati.gov.it/api/3/action/package_search',
-                color: '#0066CC'
+                color: '#0066CC',
+                description: 'Catalogo nazionale dei dati aperti della PA'
+            },
+            geoportale: {
+                id: 'geoportale',
+                name: 'Geoportale Nazionale (RNDT)',
+                url: 'https://geodati.gov.it',
+                color: '#2E7D32',
+                description: 'Repertorio Nazionale dei Dati Territoriali'
+            },
+            ipa: {
+                id: 'ipa',
+                name: 'Indice PA (IPA)',
+                url: 'https://indicepa.gov.it',
+                color: '#1976D2',
+                description: 'Indice delle Pubbliche Amministrazioni'
+            },
+            salute: {
+                id: 'salute',
+                name: 'Dati.salute.gov.it',
+                url: 'https://www.dati.salute.gov.it',
+                color: '#C62828',
+                description: 'Open Data del Ministero della Salute'
+            },
+            scuola: {
+                id: 'scuola',
+                name: 'Portale Unico Dati Scuola',
+                url: 'https://dati.istruzione.it',
+                color: '#F57C00',
+                description: 'Dati aperti del sistema scolastico italiano'
+            },
+            openbdap: {
+                id: 'openbdap',
+                name: 'OpenBDAP',
+                url: 'https://openbdap.rgs.mef.gov.it',
+                color: '#5E35B1',
+                description: 'Banca Dati delle Amministrazioni Pubbliche'
+            },
+            anac: {
+                id: 'anac',
+                name: 'ANAC / BDNCP',
+                url: 'https://dati.anticorruzione.it',
+                color: '#00695C',
+                description: 'Banca Dati Nazionale dei Contratti Pubblici'
+            },
+            opencantieri: {
+                id: 'opencantieri',
+                name: 'Open Cantieri',
+                url: 'https://opencantieri.mit.gov.it',
+                color: '#F9A825',
+                description: 'Monitoraggio opere pubbliche'
+            },
+            opencoesione: {
+                id: 'opencoesione',
+                name: 'Open Coesione',
+                url: 'https://opencoesione.gov.it',
+                color: '#6A1B9A',
+                description: 'Politiche di coesione in Italia'
+            },
+            soldipubblici: {
+                id: 'soldipubblici',
+                name: 'SoldiPubblici',
+                url: 'https://soldipubblici.gov.it',
+                color: '#D32F2F',
+                description: 'Portale della trasparenza dei conti pubblici'
+            },
+            registroimprese: {
+                id: 'registroimprese',
+                name: 'Registro Imprese (InfoCamere)',
+                url: 'https://www.registroimprese.it',
+                color: '#0277BD',
+                description: 'Dati aperti del Registro delle Imprese'
+            },
+            inps: {
+                id: 'inps',
+                name: 'INPS Open Data',
+                url: 'https://www.inps.it/opendata',
+                color: '#1565C0',
+                description: 'Open Data INPS su previdenza e assistenza'
+            },
+            inail: {
+                id: 'inail',
+                name: 'INAIL Open Data',
+                url: 'https://www.inail.it/opendata',
+                color: '#283593',
+                description: 'Dati aperti su sicurezza e salute sul lavoro'
+            },
+            ispra: {
+                id: 'ispra',
+                name: 'ISPRA Ambiente',
+                url: 'https://www.isprambiente.gov.it/it/banche-dati',
+                color: '#388E3C',
+                description: 'Annuario dati ambientali ISPRA'
+            },
+            agenziaentrate: {
+                id: 'agenziaentrate',
+                name: 'Agenzia delle Entrate',
+                url: 'https://www.agenziaentrate.gov.it/portale/web/guest/schede/fabbricatiterreni/omi/banche-dati',
+                color: '#6D4C41',
+                description: 'Statistiche fiscali e dati catastali'
+            },
+            dogane: {
+                id: 'dogane',
+                name: 'Agenzia Dogane e Monopoli',
+                url: 'https://www.adm.gov.it/portale/statistiche',
+                color: '#455A64',
+                description: 'Open Data su commercio estero e accise'
+            },
+            istat: {
+                id: 'istat',
+                name: 'Istat (I.Stat / LOD)',
+                url: 'http://dati.istat.it',
+                color: '#303F9F',
+                description: 'Statistiche ufficiali e linked open data'
             },
             normattiva: {
+                id: 'normattiva',
                 name: 'Normattiva',
                 url: 'https://www.normattiva.it/uri-res/N2Ls',
-                color: '#004C99'
+                color: '#004C99',
+                description: 'Banca dati della normativa italiana'
             },
             gazzetta: {
+                id: 'gazzetta',
                 name: 'Gazzetta Ufficiale',
                 url: 'https://www.gazzettaufficiale.it',
-                color: '#FF9900'
+                color: '#FF9900',
+                description: 'Pubblicazioni ufficiali della Repubblica'
             },
             innovazione: {
+                id: 'innovazione',
                 name: 'Innovazione.gov.it',
                 url: 'https://innovazione.gov.it',
-                color: '#28a745'
+                color: '#28a745',
+                description: 'Innovazione e trasformazione digitale'
             }
         };
         
@@ -125,11 +245,111 @@ class SearchEngine {
                 id: 10,
                 title: 'Scuole Italiane - Anagrafica e Dati Statistici',
                 description: 'Elenco completo delle scuole italiane con dati su iscrizioni, personale docente, strutture e risultati scolastici.',
-                source: 'datigov',
+                source: 'scuola',
                 category: 'istruzione',
                 date: '2023-09-01',
-                url: 'https://www.dati.gov.it/dataset/scuole-anagrafica',
+                url: 'https://dati.istruzione.it/opendata/dataset/scuole-anagrafica',
                 tags: ['scuole', 'istruzione', 'studenti', 'docenti', 'educazione']
+            },
+            {
+                id: 11,
+                title: 'Contratti Pubblici sopra soglia - ANAC',
+                description: 'Database dei contratti pubblici sopra soglia europea gestito dall\'Autorità Nazionale Anticorruzione.',
+                source: 'anac',
+                category: 'appalti',
+                date: '2024-02-15',
+                url: 'https://dati.anticorruzione.it/superset/dashboard/contratti',
+                tags: ['appalti', 'contratti', 'ANAC', 'trasparenza', 'anticorruzione']
+            },
+            {
+                id: 12,
+                title: 'Dati ambientali - Annuario ISPRA',
+                description: 'Annuario dei dati ambientali ISPRA con informazioni su qualità aria, acqua, biodiversità e clima.',
+                source: 'ispra',
+                category: 'ambiente',
+                date: '2023-12-01',
+                url: 'https://www.isprambiente.gov.it/it/pubblicazioni/stato-dellambiente',
+                tags: ['ambiente', 'ISPRA', 'clima', 'biodiversità', 'inquinamento']
+            },
+            {
+                id: 13,
+                title: 'Open Coesione - Progetti territoriali',
+                description: 'Monitoraggio dei progetti finanziati dalle politiche di coesione europea e nazionale sul territorio.',
+                source: 'opencoesione',
+                category: 'economia',
+                date: '2024-01-25',
+                url: 'https://opencoesione.gov.it/it/progetti/',
+                tags: ['coesione', 'fondi europei', 'progetti', 'territorio', 'sviluppo']
+            },
+            {
+                id: 14,
+                title: 'Statistiche Istat - Indicatori demografici',
+                description: 'Indicatori demografici nazionali e regionali da I.Stat: popolazione, natalità, mortalità, migrazioni.',
+                source: 'istat',
+                category: 'demografia',
+                date: '2024-02-10',
+                url: 'http://dati.istat.it/Index.aspx?DataSetCode=DCIS_POPRES1',
+                tags: ['istat', 'demografia', 'statistiche', 'popolazione', 'territorio']
+            },
+            {
+                id: 15,
+                title: 'Indice PA - Enti e uffici pubblici',
+                description: 'Indice delle pubbliche amministrazioni italiane con informazioni su enti, uffici, contatti e servizi.',
+                source: 'ipa',
+                category: 'amministrazione',
+                date: '2024-02-01',
+                url: 'https://indicepa.gov.it/ipa-dati/dataset',
+                tags: ['IPA', 'enti pubblici', 'amministrazione', 'anagrafica', 'PA']
+            },
+            {
+                id: 16,
+                title: 'Dati sanitari - Ministero della Salute',
+                description: 'Dataset aperti su strutture sanitarie, prestazioni, farmaci e indicatori di salute pubblica.',
+                source: 'salute',
+                category: 'salute',
+                date: '2024-01-30',
+                url: 'https://www.dati.salute.gov.it/dati/dettaglioDataset/menu',
+                tags: ['salute', 'sanità', 'ospedali', 'farmaci', 'prevenzione']
+            },
+            {
+                id: 17,
+                title: 'Open Cantieri - Infrastrutture in costruzione',
+                description: 'Monitoraggio delle opere pubbliche e infrastrutture in fase di realizzazione sul territorio nazionale.',
+                source: 'opencantieri',
+                category: 'infrastrutture',
+                date: '2024-02-05',
+                url: 'https://opencantieri.mit.gov.it/open-data',
+                tags: ['infrastrutture', 'cantieri', 'opere pubbliche', 'MIT', 'monitoraggio']
+            },
+            {
+                id: 18,
+                title: 'INPS Open Data - Prestazioni previdenziali',
+                description: 'Dati aperti INPS su pensioni, ammortizzatori sociali, prestazioni assistenziali e previdenza.',
+                source: 'inps',
+                category: 'lavoro',
+                date: '2024-01-20',
+                url: 'https://www.inps.it/opendata',
+                tags: ['INPS', 'pensioni', 'previdenza', 'assistenza', 'lavoro']
+            },
+            {
+                id: 19,
+                title: 'INAIL - Dati su infortuni e malattie professionali',
+                description: 'Open data INAIL su infortuni sul lavoro, malattie professionali e prevenzione nei luoghi di lavoro.',
+                source: 'inail',
+                category: 'lavoro',
+                date: '2024-01-15',
+                url: 'https://www.inail.it/opendata',
+                tags: ['INAIL', 'infortuni', 'sicurezza', 'lavoro', 'prevenzione']
+            },
+            {
+                id: 20,
+                title: 'Geoportale Nazionale - Dati territoriali',
+                description: 'Repertorio Nazionale dei Dati Territoriali con cartografie, ortofoto e dati geografici.',
+                source: 'geoportale',
+                category: 'territorio',
+                date: '2024-02-08',
+                url: 'https://geodati.gov.it/geoportale/',
+                tags: ['cartografia', 'territorio', 'GIS', 'mappe', 'geoportale']
             }
         ];
     }
@@ -300,6 +520,11 @@ class SearchEngine {
     // Get data source info
     getSourceInfo(sourceId) {
         return this.dataSources[sourceId] || null;
+    }
+
+    // Get all sources
+    getAllSources() {
+        return Object.values(this.dataSources);
     }
 
     // Format date for display
