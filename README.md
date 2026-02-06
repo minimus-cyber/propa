@@ -1,9 +1,9 @@
-# Pro PA - Motore di Ricerca Professionale per la Pubblica Amministrazione
+# OmniPA - Motore di Ricerca Unificato per la Pubblica Amministrazione
 
 [![Deploy to GitHub Pages](https://github.com/minimus-cyber/propa/actions/workflows/deploy.yml/badge.svg)](https://github.com/minimus-cyber/propa/actions/workflows/deploy.yml)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-success)](https://minimus-cyber.github.io/propa/)
 
-**Pro PA** è un'applicazione web completa progettata per funzionari e dipendenti della Pubblica Amministrazione italiana, che permette di cercare dati e documenti da fonti multiple in modo efficiente e professionale.
+**OmniPA** è un'applicazione web completa progettata per funzionari e dipendenti della Pubblica Amministrazione italiana, che permette di cercare dati e documenti da fonti multiple in modo efficiente e unificato.
 
 ## 🌐 Demo Live
 
@@ -11,9 +11,10 @@
 
 ## 🎯 Caratteristiche Principali
 
-### 🔍 Ricerca Multi-Fonte
-- **Integrazione con fonti ufficiali PA**: dati.gov.it, Normattiva, Gazzetta Ufficiale, Innovazione.gov.it
-- **Ricerca unificata**: Un'unica barra di ricerca per accedere a tutte le fonti
+### 🔍 Ricerca Unificata e Multi-Fonte
+- **Ricerca Unificata**: Una barra di ricerca principale per cercare simultaneamente in tutte le fonti PA
+- **Ricerca Specifica per Fonte**: Motori di ricerca individuali per ciascuna delle 20+ fonti disponibili
+- **Integrazione con fonti ufficiali PA**: Accesso diretto a tutti i principali portali dati della PA italiana
 - **Filtri avanzati espandibili**: Filtra per fonte, categoria, intervallo di date
 - **Risultati dettagliati**: Visualizzazione completa con metadati, descrizioni e tag
 
@@ -75,10 +76,18 @@ propa/
 
 ### Utilizzo dell'Applicazione
 
-#### Ricerca Base
-1. Inserisci il termine di ricerca nella barra principale
-2. Premi "Cerca" o Invio
-3. Visualizza i risultati con tutti i dettagli
+#### Ricerca Unificata
+1. Utilizza la barra di ricerca principale in alto per cercare in tutte le fonti simultaneamente
+2. Inserisci il termine di ricerca
+3. Premi "Cerca in tutte le fonti" o Invio
+4. Visualizza i risultati aggregati da tutte le fonti
+
+#### Ricerca per Singola Fonte
+1. Scorri alla sezione "Ricerca per singola fonte"
+2. Scegli la fonte specifica di tuo interesse (es. INPS, ANAC, Istat)
+3. Inserisci il termine di ricerca nella barra dedicata
+4. Premi il pulsante di ricerca per quella fonte specifica
+5. Visualizza i risultati solo da quella fonte
 
 #### Filtri Avanzati
 1. Clicca su "Filtri avanzati" sotto la barra di ricerca
@@ -122,11 +131,27 @@ propa/
 - **Docxtemplater 3.37.7**: Export Word
 - **PizZip 3.1.4**: Supporto ZIP per Word
 
-### Fonti Dati
-- **dati.gov.it**: Open Data della Pubblica Amministrazione
-- **Normattiva**: Banca dati della normativa italiana
-- **Gazzetta Ufficiale**: Pubblicazioni ufficiali
-- **Innovazione.gov.it**: Dati su innovazione e digitalizzazione
+### Fonti Dati Integrate (20+)
+1. **Dati.gov.it** - Catalogo nazionale open data PA
+2. **Geoportale Nazionale (RNDT)** - Dati territoriali e cartografici
+3. **Indice PA (IPA)** - Anagrafica pubbliche amministrazioni
+4. **Dati.salute.gov.it** - Open data sanitari
+5. **Portale Unico Dati Scuola** - Dati sistema scolastico
+6. **OpenBDAP** - Banca dati amministrazioni pubbliche
+7. **ANAC / BDNCP** - Contratti pubblici e anticorruzione
+8. **Open Cantieri** - Monitoraggio opere pubbliche
+9. **Open Coesione** - Politiche di coesione europea
+10. **SoldiPubblici** - Trasparenza conti pubblici
+11. **Registro Imprese (InfoCamere)** - Dati imprese italiane
+12. **INPS Open Data** - Previdenza e assistenza
+13. **INAIL Open Data** - Sicurezza sul lavoro
+14. **ISPRA** - Dati ambientali
+15. **Agenzia delle Entrate** - Statistiche fiscali e catasto
+16. **Agenzia Dogane e Monopoli** - Commercio estero
+17. **Istat (I.Stat / LOD)** - Statistiche ufficiali
+18. **Normattiva** - Normativa italiana
+19. **Gazzetta Ufficiale** - Pubblicazioni ufficiali
+20. **Innovazione.gov.it** - Innovazione e digitale
 
 ## 🎨 Personalizzazione
 
@@ -309,4 +334,4 @@ Per supporto, bug report o richieste di feature:
 
 ---
 
-**Pro PA** - Semplificare l'accesso ai dati della Pubblica Amministrazione 🇮🇹
+**OmniPA** - Semplificare l'accesso unificato ai dati della Pubblica Amministrazione 🇮🇹
