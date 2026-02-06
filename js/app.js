@@ -95,7 +95,7 @@ class ProPAApp {
         document.querySelectorAll('.source-search-input').forEach(input => {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    const source = input.id.split('-')[0];
+                    const source = input.dataset.source;
                     this.performSourceSpecificSearch(source);
                 }
             });
