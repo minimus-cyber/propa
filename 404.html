@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Pagina non trovata | Pro PA</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .error-icon {
+            font-size: 6rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .error-code {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        .error-description {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-search-location"></i>
+                <h1>Pro PA</h1>
+            </div>
+            <nav class="nav">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Error Content -->
+    <main class="main">
+        <div class="container">
+            <div class="error-container">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="error-code">404</div>
+                <div class="error-message">Pagina non trovata</div>
+                <div class="error-description">
+                    La pagina che stai cercando non esiste o è stata spostata.
+                    Torna alla home page per continuare la ricerca.
+                </div>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Torna alla Home
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

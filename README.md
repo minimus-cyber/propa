@@ -1,6 +1,13 @@
 # Pro PA - Motore di Ricerca Professionale per la Pubblica Amministrazione
 
+[![Deploy to GitHub Pages](https://github.com/minimus-cyber/propa/actions/workflows/deploy.yml/badge.svg)](https://github.com/minimus-cyber/propa/actions/workflows/deploy.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-success)](https://minimus-cyber.github.io/propa/)
+
 **Pro PA** è un'applicazione web completa progettata per funzionari e dipendenti della Pubblica Amministrazione italiana, che permette di cercare dati e documenti da fonti multiple in modo efficiente e professionale.
+
+## 🌐 Demo Live
+
+**Visita l'applicazione**: [https://minimus-cyber.github.io/propa/](https://minimus-cyber.github.io/propa/)
 
 ## 🎯 Caratteristiche Principali
 
@@ -166,11 +173,46 @@ this.dataSources = {
 
 ## 🚀 Deployment
 
-### GitHub Pages
-```bash
-# Il repository è già configurato per GitHub Pages
-# Vai su Settings > Pages > seleziona branch main
-```
+### GitHub Pages (Automatico)
+
+Il progetto è configurato per il deployment automatico su GitHub Pages:
+
+1. **Il deployment è già attivo**: Ogni push al branch `main` attiva automaticamente il workflow di deployment
+2. **URL di produzione**: [https://minimus-cyber.github.io/propa/](https://minimus-cyber.github.io/propa/)
+3. **Workflow GitHub Actions**: Il file `.github/workflows/deploy.yml` gestisce il deployment automatico
+
+#### Come funziona il deployment automatico
+
+1. Ogni volta che viene fatto un push al branch `main`, GitHub Actions:
+   - Effettua il checkout del codice
+   - Configura GitHub Pages
+   - Carica tutti i file statici
+   - Deploya l'applicazione
+
+2. Il deployment richiede circa 1-2 minuti
+3. Puoi monitorare lo stato del deployment nella tab "Actions" del repository
+
+#### Configurazione GitHub Pages (già attiva)
+
+Il repository è già configurato per utilizzare GitHub Pages con:
+- **Source**: GitHub Actions workflow
+- **Branch**: main
+- **Directory**: root (/)
+- **Custom domain**: Opzionale (vedi sotto)
+
+#### Aggiungere un dominio personalizzato (Opzionale)
+
+Se desideri utilizzare un dominio personalizzato:
+
+1. Vai su Settings > Pages nel repository GitHub
+2. In "Custom domain" inserisci il tuo dominio (es. `propa.example.com`)
+3. Configura i record DNS presso il tuo provider:
+   ```
+   Type: CNAME
+   Name: propa (o il sottodominio desiderato)
+   Value: minimus-cyber.github.io
+   ```
+4. GitHub creerà automaticamente un file CNAME nel repository
 
 ### Server Web
 1. Carica tutti i file su un server web
