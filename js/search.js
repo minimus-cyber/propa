@@ -282,6 +282,67 @@ class SearchEngine {
                 if (filters.dateTo) {
                     results = results.filter(item => item.date <= filters.dateTo);
                 }
+
+                // Apply source-specific filters
+                // For dati.gov.it
+                if (filters.organization) {
+                    results = results.filter(item => 
+                        item.source === 'datigov' &&
+                        (item.title.toLowerCase().includes(filters.organization.toLowerCase()) ||
+                         item.description.toLowerCase().includes(filters.organization.toLowerCase()))
+                    );
+                }
+
+                // For Normattiva
+                if (filters.type || filters.number || filters.year) {
+                    results = results.filter(item => {
+                        if (item.source !== 'normattiva') return false;
+                        
+                        let matches = true;
+                        if (filters.type) {
+                            matches = matches && item.title.toLowerCase().includes(filters.type);
+                        }
+                        if (filters.number) {
+                            matches = matches && item.title.includes(filters.number);
+                        }
+                        if (filters.year) {
+                            matches = matches && (item.title.includes(filters.year) || item.date.includes(filters.year));
+                        }
+                        return matches;
+                    });
+                }
+
+                // For Gazzetta Ufficiale
+                if (filters.series || filters.number) {
+                    results = results.filter(item => {
+                        if (item.source !== 'gazzetta') return false;
+                        
+                        let matches = true;
+                        if (filters.series) {
+                            matches = matches && item.title.toLowerCase().includes(filters.series);
+                        }
+                        if (filters.number) {
+                            matches = matches && item.title.includes(filters.number);
+                        }
+                        return matches;
+                    });
+                }
+
+                // For Innovazione.gov.it
+                if (filters.contentType || filters.sector || filters.status) {
+                    results = results.filter(item => {
+                        if (item.source !== 'innovazione') return false;
+                        
+                        let matches = true;
+                        if (filters.contentType) {
+                            matches = matches && (
+                                item.title.toLowerCase().includes(filters.contentType) ||
+                                item.tags.some(tag => tag.toLowerCase().includes(filters.contentType))
+                            );
+                        }
+                        return matches;
+                    });
+                }
                 
                 // Sort by date (newest first)
                 results.sort((a, b) => new Date(b.date) - new Date(a.date));

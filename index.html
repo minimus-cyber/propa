@@ -110,6 +110,207 @@
                 </div>
             </section>
 
+            <!-- Source-Specific Search Panels -->
+            <section class="source-panels-section">
+                <h3 class="section-title">Ricerca per fonte specifica</h3>
+                <p class="section-description">Cerca dati utilizzando campi specializzati per ogni fonte</p>
+                
+                <!-- dati.gov.it Panel -->
+                <div class="source-panel" data-source="datigov">
+                    <div class="source-panel-header">
+                        <div class="source-info">
+                            <i class="fas fa-database"></i>
+                            <h4>dati.gov.it</h4>
+                        </div>
+                        <button class="btn btn-icon panel-toggle" data-target="datigov-content">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="source-panel-content" id="datigov-content">
+                        <div class="source-search-bar">
+                            <input type="text" class="form-control source-search-input" 
+                                   id="datigov-search" placeholder="Ricerca libera in dati.gov.it...">
+                            <button class="btn btn-primary source-search-btn" data-source="datigov">
+                                <i class="fas fa-search"></i> Cerca
+                            </button>
+                        </div>
+                        <div class="source-filters">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label>Organizzazione:</label>
+                                    <input type="text" class="form-control" id="datigov-org" 
+                                           placeholder="Es: Ministero dell'Interno">
+                                </div>
+                                <div class="filter-group">
+                                    <label>Formato dati:</label>
+                                    <select class="form-control" id="datigov-format">
+                                        <option value="">Tutti</option>
+                                        <option value="csv">CSV</option>
+                                        <option value="json">JSON</option>
+                                        <option value="xml">XML</option>
+                                        <option value="pdf">PDF</option>
+                                        <option value="xls">Excel</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Licenza:</label>
+                                    <select class="form-control" id="datigov-license">
+                                        <option value="">Tutte</option>
+                                        <option value="cc-by">CC-BY</option>
+                                        <option value="cc-zero">CC0</option>
+                                        <option value="iodl">IODL</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Normattiva Panel -->
+                <div class="source-panel" data-source="normattiva">
+                    <div class="source-panel-header">
+                        <div class="source-info">
+                            <i class="fas fa-gavel"></i>
+                            <h4>Normattiva</h4>
+                        </div>
+                        <button class="btn btn-icon panel-toggle" data-target="normattiva-content">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="source-panel-content" id="normattiva-content">
+                        <div class="source-search-bar">
+                            <input type="text" class="form-control source-search-input" 
+                                   id="normattiva-search" placeholder="Ricerca libera in Normattiva...">
+                            <button class="btn btn-primary source-search-btn" data-source="normattiva">
+                                <i class="fas fa-search"></i> Cerca
+                            </button>
+                        </div>
+                        <div class="source-filters">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label>Tipo atto:</label>
+                                    <select class="form-control" id="normattiva-type">
+                                        <option value="">Tutti</option>
+                                        <option value="decreto">Decreto Legislativo</option>
+                                        <option value="legge">Legge</option>
+                                        <option value="dpr">DPR</option>
+                                        <option value="dpcm">DPCM</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Numero atto:</label>
+                                    <input type="text" class="form-control" id="normattiva-number" 
+                                           placeholder="Es: 33">
+                                </div>
+                                <div class="filter-group">
+                                    <label>Anno:</label>
+                                    <input type="number" class="form-control" id="normattiva-year" 
+                                           placeholder="Es: 2013" min="1900" max="2099">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gazzetta Ufficiale Panel -->
+                <div class="source-panel" data-source="gazzetta">
+                    <div class="source-panel-header">
+                        <div class="source-info">
+                            <i class="fas fa-newspaper"></i>
+                            <h4>Gazzetta Ufficiale</h4>
+                        </div>
+                        <button class="btn btn-icon panel-toggle" data-target="gazzetta-content">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="source-panel-content" id="gazzetta-content">
+                        <div class="source-search-bar">
+                            <input type="text" class="form-control source-search-input" 
+                                   id="gazzetta-search" placeholder="Ricerca libera in Gazzetta Ufficiale...">
+                            <button class="btn btn-primary source-search-btn" data-source="gazzetta">
+                                <i class="fas fa-search"></i> Cerca
+                            </button>
+                        </div>
+                        <div class="source-filters">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label>Serie:</label>
+                                    <select class="form-control" id="gazzetta-series">
+                                        <option value="">Tutte</option>
+                                        <option value="generale">Serie Generale</option>
+                                        <option value="concorsi">Concorsi ed esami</option>
+                                        <option value="contratti">Contratti pubblici</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Numero:</label>
+                                    <input type="text" class="form-control" id="gazzetta-number" 
+                                           placeholder="Es: 45">
+                                </div>
+                                <div class="filter-group">
+                                    <label>Data pubblicazione:</label>
+                                    <input type="date" class="form-control" id="gazzetta-date">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Innovazione.gov.it Panel -->
+                <div class="source-panel" data-source="innovazione">
+                    <div class="source-panel-header">
+                        <div class="source-info">
+                            <i class="fas fa-lightbulb"></i>
+                            <h4>Innovazione.gov.it</h4>
+                        </div>
+                        <button class="btn btn-icon panel-toggle" data-target="innovazione-content">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="source-panel-content" id="innovazione-content">
+                        <div class="source-search-bar">
+                            <input type="text" class="form-control source-search-input" 
+                                   id="innovazione-search" placeholder="Ricerca libera in Innovazione.gov.it...">
+                            <button class="btn btn-primary source-search-btn" data-source="innovazione">
+                                <i class="fas fa-search"></i> Cerca
+                            </button>
+                        </div>
+                        <div class="source-filters">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label>Tipo contenuto:</label>
+                                    <select class="form-control" id="innovazione-type">
+                                        <option value="">Tutti</option>
+                                        <option value="pnrr">PNRR</option>
+                                        <option value="strategia">Strategia digitale</option>
+                                        <option value="progetti">Progetti</option>
+                                        <option value="competenze">Competenze digitali</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Settore:</label>
+                                    <select class="form-control" id="innovazione-sector">
+                                        <option value="">Tutti</option>
+                                        <option value="pa">PA digitale</option>
+                                        <option value="cittadini">Cittadini</option>
+                                        <option value="imprese">Imprese</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Stato:</label>
+                                    <select class="form-control" id="innovazione-status">
+                                        <option value="">Tutti</option>
+                                        <option value="attivo">In corso</option>
+                                        <option value="completato">Completato</option>
+                                        <option value="pianificato">Pianificato</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Results Section -->
             <section class="results-section" id="resultsSection">
                 <div class="results-header">

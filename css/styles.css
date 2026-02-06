@@ -782,3 +782,123 @@ body {
         display: none;
     }
 }
+
+/* Source-Specific Search Panels */
+.source-panels-section {
+    background-color: var(--bg-white);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.section-description {
+    color: var(--text-light);
+    margin-bottom: 25px;
+    font-size: 1.05rem;
+}
+
+.source-panel {
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.source-panel:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.source-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--bg-light);
+    cursor: pointer;
+}
+
+.source-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.source-info i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.source-info h4 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.panel-toggle {
+    transition: transform 0.3s ease;
+}
+
+.panel-toggle.rotated {
+    transform: rotate(180deg);
+}
+
+.source-panel-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+}
+
+.source-panel-content.active {
+    max-height: 600px;
+    padding: 20px;
+}
+
+.source-search-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.source-search-input {
+    flex: 1;
+}
+
+.source-search-btn {
+    white-space: nowrap;
+}
+
+.source-filters {
+    background-color: var(--bg-light);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Responsive Design for Source Panels */
+@media (max-width: 768px) {
+    .source-search-bar {
+        flex-direction: column;
+    }
+    
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .source-panel-content.active {
+        max-height: 800px;
+    }
+}

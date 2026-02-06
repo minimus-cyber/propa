@@ -59,6 +59,48 @@ class ProPAApp {
             this.resetFilters();
         });
 
+        // Source-specific search panel toggles
+        document.querySelectorAll('.panel-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const targetId = btn.dataset.target;
+                const content = document.getElementById(targetId);
+                const isActive = content.classList.contains('active');
+                
+                // Close all panels
+                document.querySelectorAll('.source-panel-content').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.querySelectorAll('.panel-toggle').forEach(toggle => {
+                    toggle.classList.remove('rotated');
+                });
+                
+                // Toggle current panel
+                if (!isActive) {
+                    content.classList.add('active');
+                    btn.classList.add('rotated');
+                }
+            });
+        });
+
+        // Source-specific search buttons
+        document.querySelectorAll('.source-search-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const source = btn.dataset.source;
+                this.performSourceSpecificSearch(source);
+            });
+        });
+
+        // Enable Enter key on source-specific search inputs
+        document.querySelectorAll('.source-search-input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const source = input.id.split('-')[0];
+                    this.performSourceSpecificSearch(source);
+                }
+            });
+        });
+
         // Export buttons
         document.getElementById('exportPdfBtn').addEventListener('click', () => {
             exportManager.exportToPDF();
@@ -151,6 +193,88 @@ class ProPAApp {
 
             // Update export manager
             exportManager.setResults(this.currentResults);
+
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showToast('Errore durante la ricerca', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async performSourceSpecificSearch(source) {
+        // Get source-specific search query and filters
+        const query = document.getElementById(`${source}-search`).value.trim();
+        
+        if (!query) {
+            this.showToast('Inserisci un termine di ricerca', 'error');
+            return;
+        }
+
+        // Build specialized filters based on source
+        const filters = {
+            source: source
+        };
+
+        // Add source-specific filters
+        switch(source) {
+            case 'datigov':
+                const org = document.getElementById('datigov-org').value;
+                const format = document.getElementById('datigov-format').value;
+                const license = document.getElementById('datigov-license').value;
+                if (org) filters.organization = org;
+                if (format) filters.format = format;
+                if (license) filters.license = license;
+                break;
+                
+            case 'normattiva':
+                const type = document.getElementById('normattiva-type').value;
+                const number = document.getElementById('normattiva-number').value;
+                const year = document.getElementById('normattiva-year').value;
+                if (type) filters.type = type;
+                if (number) filters.number = number;
+                if (year) filters.year = year;
+                break;
+                
+            case 'gazzetta':
+                const series = document.getElementById('gazzetta-series').value;
+                const gazzNumber = document.getElementById('gazzetta-number').value;
+                const gazzDate = document.getElementById('gazzetta-date').value;
+                if (series) filters.series = series;
+                if (gazzNumber) filters.number = gazzNumber;
+                if (gazzDate) filters.date = gazzDate;
+                break;
+                
+            case 'innovazione':
+                const contentType = document.getElementById('innovazione-type').value;
+                const sector = document.getElementById('innovazione-sector').value;
+                const status = document.getElementById('innovazione-status').value;
+                if (contentType) filters.contentType = contentType;
+                if (sector) filters.sector = sector;
+                if (status) filters.status = status;
+                break;
+        }
+
+        // Show loading
+        this.showLoading(true);
+        document.getElementById('resultsSection').classList.add('active');
+
+        try {
+            // Perform search
+            const searchResult = await searchEngine.search(query, filters);
+            this.currentResults = searchResult.results;
+
+            // Save to history
+            storageManager.addToHistory(query, filters);
+
+            // Display results
+            this.displayResults(searchResult);
+
+            // Update export manager
+            exportManager.setResults(this.currentResults);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
         } catch (error) {
             console.error('Search error:', error);
