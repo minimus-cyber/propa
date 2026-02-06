@@ -12,6 +12,29 @@ class ProPAApp {
         this.loadSavedData();
     }
 
+    // Helper method to escape HTML and prevent XSS
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Helper method to validate and sanitize URLs
+    isValidUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            // Only allow http and https protocols
+            return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+        } catch (e) {
+            return false;
+        }
+    }
+
     setupEventListeners() {
         // Search functionality
         document.getElementById('searchBtn').addEventListener('click', () => this.performSearch());
@@ -77,6 +100,20 @@ class ProPAApp {
                     this.closeModal(modalId);
                 }
             });
+        });
+
+        // Event delegation for result title clicks
+        document.addEventListener('click', (e) => {
+            // Handle result title clicks (in results section)
+            const resultTitle = e.target.closest('.result-title');
+            if (resultTitle && resultTitle.dataset.url) {
+                e.preventDefault();
+                const url = resultTitle.dataset.url;
+                if (this.isValidUrl(url)) {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
+                return;
+            }
         });
     }
 
@@ -159,10 +196,10 @@ class ProPAApp {
             <div class="result-item">
                 <div class="result-header">
                     <div>
-                        <h4 class="result-title" onclick="window.open('${result.url}', '_blank')">${result.title}</h4>
+                        <h4 class="result-title" data-url="${this.escapeHtml(result.url)}">${this.escapeHtml(result.title)}</h4>
                         <div class="result-meta">
-                            <span><i class="fas fa-database"></i> ${sourceInfo ? sourceInfo.name : result.source}</span>
-                            <span><i class="fas fa-folder"></i> ${result.category}</span>
+                            <span><i class="fas fa-database"></i> ${sourceInfo ? this.escapeHtml(sourceInfo.name) : this.escapeHtml(result.source)}</span>
+                            <span><i class="fas fa-folder"></i> ${this.escapeHtml(result.category)}</span>
                             <span><i class="fas fa-calendar"></i> ${searchEngine.formatDate(result.date)}</span>
                         </div>
                     </div>
@@ -170,9 +207,9 @@ class ProPAApp {
                         <i class="fas fa-bookmark"></i>
                     </button>
                 </div>
-                <p class="result-description">${result.description}</p>
+                <p class="result-description">${this.escapeHtml(result.description)}</p>
                 <div class="result-tags">
-                    ${result.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    ${result.tags.map(tag => `<span class="tag">${this.escapeHtml(tag)}</span>`).join('')}
                 </div>
             </div>
         `;
@@ -244,7 +281,7 @@ class ProPAApp {
 
             document.querySelectorAll('.history-item .delete-btn').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = parseInt(e.currentTarget.dataset.id);
                     storageManager.deleteHistoryItem(id);
                     this.showHistoryModal();
                 });
@@ -261,7 +298,7 @@ class ProPAApp {
         return `
             <div class="history-item">
                 <div class="item-content">
-                    <div class="item-title" data-query="${item.query}">${item.query}</div>
+                    <div class="item-title" data-query="${this.escapeHtml(item.query)}">${this.escapeHtml(item.query)}</div>
                     <div class="item-date">${formattedDate}</div>
                 </div>
                 <div class="item-actions">
@@ -300,14 +337,25 @@ class ProPAApp {
             // Add event listeners
             document.querySelectorAll('.bookmark-item .item-title').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    const url = e.target.dataset.url;
-                    window.open(url, '_blank');
+                    const url = e.currentTarget.dataset.url;
+                    if (url && this.isValidUrl(url)) {
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.bookmark-item .view-btn').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const url = e.currentTarget.dataset.url;
+                    if (url && this.isValidUrl(url)) {
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }
                 });
             });
 
             document.querySelectorAll('.bookmark-item .delete-btn').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = parseInt(e.currentTarget.dataset.id);
                     storageManager.removeBookmark(id);
                     this.showBookmarksModal();
                     this.showToast('Segnalibro rimosso', 'success');
@@ -332,13 +380,13 @@ class ProPAApp {
         return `
             <div class="bookmark-item">
                 <div class="item-content">
-                    <div class="item-title" data-url="${item.url}">${item.title}</div>
+                    <div class="item-title" data-url="${this.escapeHtml(item.url)}">${this.escapeHtml(item.title)}</div>
                     <div class="item-date">
-                        ${sourceInfo ? sourceInfo.name : item.source} - Salvato il ${formattedDate}
+                        ${sourceInfo ? this.escapeHtml(sourceInfo.name) : this.escapeHtml(item.source)} - Salvato il ${formattedDate}
                     </div>
                 </div>
                 <div class="item-actions">
-                    <button class="view-btn" onclick="window.open('${item.url}', '_blank')" title="Apri">
+                    <button class="view-btn" data-url="${this.escapeHtml(item.url)}" title="Apri">
                         <i class="fas fa-external-link-alt"></i>
                     </button>
                     <button class="delete-btn" data-id="${item.id}" title="Elimina">

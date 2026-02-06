@@ -16,6 +16,12 @@ class ExportManager {
             return;
         }
 
+        // Check if jsPDF is available
+        if (!window.jspdf) {
+            this.showError('Libreria PDF non disponibile. Riprova più tardi.');
+            return;
+        }
+
         try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -114,6 +120,12 @@ class ExportManager {
             return;
         }
 
+        // Check if XLSX is available
+        if (!window.XLSX) {
+            this.showError('Libreria Excel non disponibile. Riprova più tardi.');
+            return;
+        }
+
         try {
             // Prepare data for Excel
             const data = this.currentResults.map((result, index) => ({
@@ -159,6 +171,12 @@ class ExportManager {
     exportToWord() {
         if (this.currentResults.length === 0) {
             this.showError('Nessun risultato da esportare');
+            return;
+        }
+
+        // Check if saveAs is available
+        if (!window.saveAs) {
+            this.showError('Libreria di download non disponibile. Riprova più tardi.');
             return;
         }
 
