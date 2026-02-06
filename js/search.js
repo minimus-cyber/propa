@@ -294,7 +294,7 @@ class SearchEngine {
                 }
 
                 // For Normattiva
-                if (filters.type || filters.number || filters.year) {
+                if (filters.type || filters.actNumber || filters.year) {
                     results = results.filter(item => {
                         if (item.source !== 'normattiva') return false;
                         
@@ -302,8 +302,8 @@ class SearchEngine {
                         if (filters.type) {
                             matches = matches && item.title.toLowerCase().includes(filters.type);
                         }
-                        if (filters.number) {
-                            matches = matches && item.title.includes(filters.number);
+                        if (filters.actNumber) {
+                            matches = matches && item.title.includes(filters.actNumber);
                         }
                         if (filters.year) {
                             matches = matches && (item.title.includes(filters.year) || item.date.includes(filters.year));
@@ -313,7 +313,7 @@ class SearchEngine {
                 }
 
                 // For Gazzetta Ufficiale
-                if (filters.series || filters.number) {
+                if (filters.series || filters.gazzettaNumber) {
                     results = results.filter(item => {
                         if (item.source !== 'gazzetta') return false;
                         
@@ -321,8 +321,8 @@ class SearchEngine {
                         if (filters.series) {
                             matches = matches && item.title.toLowerCase().includes(filters.series);
                         }
-                        if (filters.number) {
-                            matches = matches && item.title.includes(filters.number);
+                        if (filters.gazzettaNumber) {
+                            matches = matches && item.title.includes(filters.gazzettaNumber);
                         }
                         return matches;
                     });
@@ -338,6 +338,20 @@ class SearchEngine {
                             matches = matches && (
                                 item.title.toLowerCase().includes(filters.contentType) ||
                                 item.tags.some(tag => tag.toLowerCase().includes(filters.contentType))
+                            );
+                        }
+                        if (filters.sector) {
+                            matches = matches && (
+                                item.title.toLowerCase().includes(filters.sector) ||
+                                item.description.toLowerCase().includes(filters.sector) ||
+                                item.tags.some(tag => tag.toLowerCase().includes(filters.sector))
+                            );
+                        }
+                        if (filters.status) {
+                            // For status, we check description or tags
+                            matches = matches && (
+                                item.description.toLowerCase().includes(filters.status) ||
+                                item.tags.some(tag => tag.toLowerCase().includes(filters.status))
                             );
                         }
                         return matches;

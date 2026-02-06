@@ -229,10 +229,10 @@ class ProPAApp {
                 
             case 'normattiva':
                 const type = document.getElementById('normattiva-type').value;
-                const number = document.getElementById('normattiva-number').value;
+                const actNumber = document.getElementById('normattiva-number').value;
                 const year = document.getElementById('normattiva-year').value;
                 if (type) filters.type = type;
-                if (number) filters.number = number;
+                if (actNumber) filters.actNumber = actNumber;
                 if (year) filters.year = year;
                 break;
                 
@@ -241,7 +241,7 @@ class ProPAApp {
                 const gazzNumber = document.getElementById('gazzetta-number').value;
                 const gazzDate = document.getElementById('gazzetta-date').value;
                 if (series) filters.series = series;
-                if (gazzNumber) filters.number = gazzNumber;
+                if (gazzNumber) filters.gazzettaNumber = gazzNumber;
                 if (gazzDate) filters.date = gazzDate;
                 break;
                 
