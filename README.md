@@ -89,11 +89,6 @@ propa/
 4. Premi il pulsante di ricerca per quella fonte specifica
 5. Visualizza i risultati solo da quella fonte
 
-#### Ricerca Base (deprecata - usa Ricerca Unificata)
-1. Inserisci il termine di ricerca nella barra principale
-2. Premi "Cerca" o Invio
-3. Visualizza i risultati con tutti i dettagli
-
 #### Filtri Avanzati
 1. Clicca su "Filtri avanzati" sotto la barra di ricerca
 2. Seleziona:

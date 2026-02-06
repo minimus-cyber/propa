@@ -246,46 +246,9 @@ class OmniPAApp {
         }
     }
 
+    // Legacy method - now calls performUnifiedSearch for backward compatibility
     async performSearch() {
-        const query = document.getElementById('unifiedSearchInput').value.trim();
-        
-        if (!query) {
-            this.showToast('Inserisci un termine di ricerca', 'error');
-            return;
-        }
-
-        // Get filters
-        this.currentFilters = {
-            source: document.getElementById('sourceFilter').value,
-            category: document.getElementById('categoryFilter').value,
-            dateFrom: document.getElementById('dateFrom').value,
-            dateTo: document.getElementById('dateTo').value
-        };
-
-        // Show loading
-        this.showLoading(true);
-        document.getElementById('resultsSection').classList.add('active');
-
-        try {
-            // Perform search
-            const searchResult = await searchEngine.search(query, this.currentFilters);
-            this.currentResults = searchResult.results;
-
-            // Save to history
-            storageManager.addToHistory(query, this.currentFilters);
-
-            // Display results
-            this.displayResults(searchResult);
-
-            // Update export manager
-            exportManager.setResults(this.currentResults);
-
-        } catch (error) {
-            console.error('Search error:', error);
-            this.showToast('Errore durante la ricerca', 'error');
-        } finally {
-            this.showLoading(false);
-        }
+        await this.performUnifiedSearch();
     }
 
     displayResults(searchResult) {
