@@ -1,0 +1,388 @@
+// app.js - Main application logic
+
+class ProPAApp {
+    constructor() {
+        this.currentResults = [];
+        this.currentFilters = {};
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.loadSavedData();
+    }
+
+    setupEventListeners() {
+        // Search functionality
+        document.getElementById('searchBtn').addEventListener('click', () => this.performSearch());
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.performSearch();
+            }
+        });
+
+        // Filter toggle
+        document.getElementById('filterToggle').addEventListener('click', () => {
+            this.toggleFilters();
+        });
+
+        // Filter actions
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            this.performSearch();
+        });
+
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            this.resetFilters();
+        });
+
+        // Export buttons
+        document.getElementById('exportPdfBtn').addEventListener('click', () => {
+            exportManager.exportToPDF();
+        });
+
+        document.getElementById('exportExcelBtn').addEventListener('click', () => {
+            exportManager.exportToExcel();
+        });
+
+        document.getElementById('exportWordBtn').addEventListener('click', () => {
+            exportManager.exportToWord();
+        });
+
+        // History modal
+        document.getElementById('historyBtn').addEventListener('click', () => {
+            this.showHistoryModal();
+        });
+
+        document.getElementById('closeHistory').addEventListener('click', () => {
+            this.closeModal('historyModal');
+        });
+
+        document.getElementById('clearHistory').addEventListener('click', () => {
+            this.clearHistory();
+        });
+
+        // Bookmarks modal
+        document.getElementById('bookmarksBtn').addEventListener('click', () => {
+            this.showBookmarksModal();
+        });
+
+        document.getElementById('closeBookmarks').addEventListener('click', () => {
+            this.closeModal('bookmarksModal');
+        });
+
+        // Close modals when clicking outside
+        ['historyModal', 'bookmarksModal'].forEach(modalId => {
+            document.getElementById(modalId).addEventListener('click', (e) => {
+                if (e.target.id === modalId) {
+                    this.closeModal(modalId);
+                }
+            });
+        });
+    }
+
+    async performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        
+        if (!query) {
+            this.showToast('Inserisci un termine di ricerca', 'error');
+            return;
+        }
+
+        // Get filters
+        this.currentFilters = {
+            source: document.getElementById('sourceFilter').value,
+            category: document.getElementById('categoryFilter').value,
+            dateFrom: document.getElementById('dateFrom').value,
+            dateTo: document.getElementById('dateTo').value
+        };
+
+        // Show loading
+        this.showLoading(true);
+        document.getElementById('resultsSection').classList.add('active');
+
+        try {
+            // Perform search
+            const searchResult = await searchEngine.search(query, this.currentFilters);
+            this.currentResults = searchResult.results;
+
+            // Save to history
+            storageManager.addToHistory(query, this.currentFilters);
+
+            // Display results
+            this.displayResults(searchResult);
+
+            // Update export manager
+            exportManager.setResults(this.currentResults);
+
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showToast('Errore durante la ricerca', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    displayResults(searchResult) {
+        const container = document.getElementById('resultsContainer');
+        const title = document.getElementById('resultsTitle');
+
+        title.textContent = `${searchResult.total} risultati trovati`;
+
+        if (searchResult.results.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <h3>Nessun risultato trovato</h3>
+                    <p>Prova a modificare i termini di ricerca o i filtri</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = searchResult.results.map(result => this.createResultCard(result)).join('');
+
+        // Add bookmark listeners
+        document.querySelectorAll('.bookmark-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resultId = parseInt(e.currentTarget.dataset.id);
+                const result = this.currentResults.find(r => r.id === resultId);
+                this.toggleBookmark(result, e.currentTarget);
+            });
+        });
+    }
+
+    createResultCard(result) {
+        const sourceInfo = searchEngine.getSourceInfo(result.source);
+        const isBookmarked = storageManager.isBookmarked(result.id);
+        
+        return `
+            <div class="result-item">
+                <div class="result-header">
+                    <div>
+                        <h4 class="result-title" onclick="window.open('${result.url}', '_blank')">${result.title}</h4>
+                        <div class="result-meta">
+                            <span><i class="fas fa-database"></i> ${sourceInfo ? sourceInfo.name : result.source}</span>
+                            <span><i class="fas fa-folder"></i> ${result.category}</span>
+                            <span><i class="fas fa-calendar"></i> ${searchEngine.formatDate(result.date)}</span>
+                        </div>
+                    </div>
+                    <button class="bookmark-btn ${isBookmarked ? 'active' : ''}" data-id="${result.id}" title="Aggiungi ai segnalibri">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                </div>
+                <p class="result-description">${result.description}</p>
+                <div class="result-tags">
+                    ${result.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    toggleBookmark(result, button) {
+        const isNowBookmarked = storageManager.toggleBookmark(result);
+        
+        if (isNowBookmarked) {
+            button.classList.add('active');
+            this.showToast('Aggiunto ai segnalibri', 'success');
+        } else {
+            button.classList.remove('active');
+            this.showToast('Rimosso dai segnalibri', 'success');
+        }
+    }
+
+    toggleFilters() {
+        const panel = document.getElementById('filtersPanel');
+        panel.classList.toggle('active');
+    }
+
+    resetFilters() {
+        document.getElementById('sourceFilter').value = 'all';
+        document.getElementById('categoryFilter').value = 'all';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        this.currentFilters = {};
+    }
+
+    showLoading(show) {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultsContainer = document.getElementById('resultsContainer');
+        
+        if (show) {
+            loadingIndicator.style.display = 'block';
+            resultsContainer.style.display = 'none';
+        } else {
+            loadingIndicator.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+    }
+
+    // History Modal
+    showHistoryModal() {
+        const modal = document.getElementById('historyModal');
+        const historyList = document.getElementById('historyList');
+        const history = storageManager.getHistory();
+
+        if (history.length === 0) {
+            historyList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <p>Nessuna ricerca nella cronologia</p>
+                </div>
+            `;
+        } else {
+            historyList.innerHTML = history.map(item => this.createHistoryItem(item)).join('');
+            
+            // Add event listeners
+            document.querySelectorAll('.history-item .item-title').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const query = e.target.dataset.query;
+                    document.getElementById('searchInput').value = query;
+                    this.closeModal('historyModal');
+                    this.performSearch();
+                });
+            });
+
+            document.querySelectorAll('.history-item .delete-btn').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    storageManager.deleteHistoryItem(id);
+                    this.showHistoryModal();
+                });
+            });
+        }
+
+        modal.classList.add('active');
+    }
+
+    createHistoryItem(item) {
+        const date = new Date(item.timestamp);
+        const formattedDate = date.toLocaleString('it-IT');
+        
+        return `
+            <div class="history-item">
+                <div class="item-content">
+                    <div class="item-title" data-query="${item.query}">${item.query}</div>
+                    <div class="item-date">${formattedDate}</div>
+                </div>
+                <div class="item-actions">
+                    <button class="delete-btn" data-id="${item.id}" title="Elimina">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    clearHistory() {
+        if (confirm('Sei sicuro di voler cancellare tutta la cronologia?')) {
+            storageManager.clearHistory();
+            this.showHistoryModal();
+            this.showToast('Cronologia cancellata', 'success');
+        }
+    }
+
+    // Bookmarks Modal
+    showBookmarksModal() {
+        const modal = document.getElementById('bookmarksModal');
+        const bookmarksList = document.getElementById('bookmarksList');
+        const bookmarks = storageManager.getBookmarks();
+
+        if (bookmarks.length === 0) {
+            bookmarksList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-bookmark"></i>
+                    <p>Nessun segnalibro salvato</p>
+                </div>
+            `;
+        } else {
+            bookmarksList.innerHTML = bookmarks.map(item => this.createBookmarkItem(item)).join('');
+            
+            // Add event listeners
+            document.querySelectorAll('.bookmark-item .item-title').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const url = e.target.dataset.url;
+                    window.open(url, '_blank');
+                });
+            });
+
+            document.querySelectorAll('.bookmark-item .delete-btn').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    storageManager.removeBookmark(id);
+                    this.showBookmarksModal();
+                    this.showToast('Segnalibro rimosso', 'success');
+                    
+                    // Update bookmark buttons in results
+                    const btn = document.querySelector(`.bookmark-btn[data-id="${id}"]`);
+                    if (btn) {
+                        btn.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        modal.classList.add('active');
+    }
+
+    createBookmarkItem(item) {
+        const date = new Date(item.bookmarkedAt);
+        const formattedDate = date.toLocaleString('it-IT');
+        const sourceInfo = searchEngine.getSourceInfo(item.source);
+        
+        return `
+            <div class="bookmark-item">
+                <div class="item-content">
+                    <div class="item-title" data-url="${item.url}">${item.title}</div>
+                    <div class="item-date">
+                        ${sourceInfo ? sourceInfo.name : item.source} - Salvato il ${formattedDate}
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <button class="view-btn" onclick="window.open('${item.url}', '_blank')" title="Apri">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="delete-btn" data-id="${item.id}" title="Elimina">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast show ${type}`;
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    loadSavedData() {
+        // Any initialization with saved data can go here
+        const stats = storageManager.getStats();
+        console.log(`Loaded: ${stats.historyCount} history items, ${stats.bookmarksCount} bookmarks`);
+    }
+}
+
+// Make showToast available globally for export manager
+window.showToast = function(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast show ${type}`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+};
+
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new ProPAApp();
+    console.log('Pro PA Application initialized');
+});

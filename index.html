@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro PA - Motore di Ricerca Professionale</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-search-location"></i>
+                <h1>Pro PA</h1>
+            </div>
+            <nav class="nav">
+                <button class="btn btn-icon" id="historyBtn" title="Cronologia">
+                    <i class="fas fa-history"></i>
+                </button>
+                <button class="btn btn-icon" id="bookmarksBtn" title="Segnalibri">
+                    <i class="fas fa-bookmark"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h2>Ricerca Professionale per la Pubblica Amministrazione</h2>
+                <p>Cerca dati e documenti da fonti multiple della PA italiana</p>
+            </section>
+
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-bar-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Cerca in dati.gov.it, normattiva e altre fonti..."
+                            autocomplete="off"
+                        >
+                        <button class="btn btn-primary search-btn" id="searchBtn">
+                            Cerca
+                        </button>
+                    </div>
+                    <button class="btn btn-secondary filter-toggle" id="filterToggle">
+                        <i class="fas fa-filter"></i>
+                        Filtri avanzati
+                    </button>
+                </div>
+
+                <!-- Advanced Filters Panel -->
+                <div class="filters-panel" id="filtersPanel">
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="sourceFilter">Fonte dati:</label>
+                            <select id="sourceFilter" class="form-control">
+                                <option value="all">Tutte le fonti</option>
+                                <option value="datigov">dati.gov.it</option>
+                                <option value="normattiva">Normattiva</option>
+                                <option value="gazzetta">Gazzetta Ufficiale</option>
+                                <option value="innovazione">Innovazione.gov.it</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="categoryFilter">Categoria:</label>
+                            <select id="categoryFilter" class="form-control">
+                                <option value="all">Tutte le categorie</option>
+                                <option value="ambiente">Ambiente</option>
+                                <option value="economia">Economia e finanze</option>
+                                <option value="salute">Salute</option>
+                                <option value="trasporti">Trasporti</option>
+                                <option value="istruzione">Istruzione</option>
+                                <option value="lavoro">Lavoro</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="dateFrom">Data da:</label>
+                            <input type="date" id="dateFrom" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label for="dateTo">Data a:</label>
+                            <input type="date" id="dateTo" class="form-control">
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-secondary" id="resetFilters">
+                            <i class="fas fa-undo"></i> Ripristina
+                        </button>
+                        <button class="btn btn-primary" id="applyFilters">
+                            <i class="fas fa-check"></i> Applica filtri
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <h3 id="resultsTitle">Risultati della ricerca</h3>
+                    <div class="results-actions">
+                        <button class="btn btn-icon" id="exportPdfBtn" title="Esporta in PDF">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-icon" id="exportExcelBtn" title="Esporta in Excel">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-icon" id="exportWordBtn" title="Esporta in Word">
+                            <i class="fas fa-file-word"></i> Word
+                        </button>
+                    </div>
+                </div>
+                <div id="resultsContainer" class="results-container">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Ricerca in corso...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> Cronologia ricerche</h3>
+                <button class="btn-close" id="closeHistory">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="historyList" class="history-list">
+                    <!-- History items will be inserted here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="clearHistory">
+                    <i class="fas fa-trash"></i> Cancella cronologia
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookmarks Modal -->
+    <div id="bookmarksModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-bookmark"></i> Segnalibri e preferiti</h3>
+                <button class="btn-close" id="closeBookmarks">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookmarksList" class="bookmarks-list">
+                    <!-- Bookmarks will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.7/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
