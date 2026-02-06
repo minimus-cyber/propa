@@ -10,6 +10,7 @@ class ProPAApp {
     init() {
         this.setupEventListeners();
         this.loadSavedData();
+        this.updateUserUI();
     }
 
     // Helper method to escape HTML and prevent XSS
@@ -94,7 +95,7 @@ class ProPAApp {
         });
 
         // Close modals when clicking outside
-        ['historyModal', 'bookmarksModal'].forEach(modalId => {
+        ['historyModal', 'bookmarksModal', 'loginModal', 'registerModal', 'userModal'].forEach(modalId => {
             document.getElementById(modalId).addEventListener('click', (e) => {
                 if (e.target.id === modalId) {
                     this.closeModal(modalId);
@@ -415,6 +416,105 @@ class ProPAApp {
         // Any initialization with saved data can go here
         const stats = storageManager.getStats();
         console.log(`Loaded: ${stats.historyCount} history items, ${stats.bookmarksCount} bookmarks`);
+    }
+
+    // Authentication methods
+    updateUserUI() {
+        const userBtn = document.getElementById('userBtn');
+        if (authManager.isLoggedIn()) {
+            const user = authManager.getCurrentUser();
+            userBtn.innerHTML = `<i class="fas fa-user-circle"></i> <span class="user-name">${this.escapeHtml(user.name)}</span>`;
+            userBtn.title = `Ciao, ${user.name}`;
+        } else {
+            userBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span class="user-name">Accedi</span>`;
+            userBtn.title = 'Accedi o Registrati';
+        }
+    }
+
+    handleUserButtonClick() {
+        if (authManager.isLoggedIn()) {
+            this.showUserModal();
+        } else {
+            this.showLoginModal();
+        }
+    }
+
+    showLoginModal() {
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginModal').classList.add('active');
+    }
+
+    showRegisterModal() {
+        document.getElementById('registerName').value = '';
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPassword').value = '';
+        document.getElementById('registerPasswordConfirm').value = '';
+        document.getElementById('registerModal').classList.add('active');
+    }
+
+    showUserModal() {
+        const user = authManager.getCurrentUser();
+        if (!user) return;
+
+        const userProfile = document.getElementById('userProfile');
+        userProfile.innerHTML = `
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h4>${this.escapeHtml(user.name)}</h4>
+                <p class="profile-email">${this.escapeHtml(user.email)}</p>
+                <p class="profile-date">Membro dal ${new Date(user.createdAt).toLocaleDateString('it-IT')}</p>
+            </div>
+        `;
+        document.getElementById('userModal').classList.add('active');
+    }
+
+    handleLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const result = authManager.login(email, password);
+        
+        if (result.success) {
+            this.showToast(result.message, 'success');
+            this.closeModal('loginModal');
+            this.updateUserUI();
+        } else {
+            this.showToast(result.message, 'error');
+        }
+    }
+
+    handleRegister() {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+        if (password !== passwordConfirm) {
+            this.showToast('Le password non coincidono', 'error');
+            return;
+        }
+
+        const result = authManager.register(name, email, password);
+        
+        if (result.success) {
+            this.showToast(result.message, 'success');
+            this.closeModal('registerModal');
+            this.updateUserUI();
+        } else {
+            this.showToast(result.message, 'error');
+        }
+    }
+
+    handleLogout() {
+        if (confirm('Sei sicuro di voler uscire?')) {
+            const result = authManager.logout();
+            this.showToast(result.message, 'success');
+            this.closeModal('userModal');
+            this.updateUserUI();
+        }
     }
 }
 
