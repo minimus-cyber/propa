@@ -24,6 +24,17 @@ class ProPAApp {
         return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
+    // Helper method to validate and sanitize URLs
+    isValidUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            // Only allow http and https protocols
+            return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+        } catch (e) {
+            return false;
+        }
+    }
+
     setupEventListeners() {
         // Search functionality
         document.getElementById('searchBtn').addEventListener('click', () => this.performSearch());
@@ -97,7 +108,10 @@ class ProPAApp {
             const resultTitle = e.target.closest('.result-title');
             if (resultTitle && resultTitle.dataset.url) {
                 e.preventDefault();
-                window.open(resultTitle.dataset.url, '_blank');
+                const url = resultTitle.dataset.url;
+                if (this.isValidUrl(url)) {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
                 return;
             }
         });
@@ -323,9 +337,9 @@ class ProPAApp {
             // Add event listeners
             document.querySelectorAll('.bookmark-item .item-title').forEach(el => {
                 el.addEventListener('click', (e) => {
-                    const url = e.target.dataset.url;
-                    if (url) {
-                        window.open(url, '_blank');
+                    const url = e.currentTarget.dataset.url;
+                    if (url && this.isValidUrl(url)) {
+                        window.open(url, '_blank', 'noopener,noreferrer');
                     }
                 });
             });
@@ -333,8 +347,8 @@ class ProPAApp {
             document.querySelectorAll('.bookmark-item .view-btn').forEach(el => {
                 el.addEventListener('click', (e) => {
                     const url = e.currentTarget.dataset.url;
-                    if (url) {
-                        window.open(url, '_blank');
+                    if (url && this.isValidUrl(url)) {
+                        window.open(url, '_blank', 'noopener,noreferrer');
                     }
                 });
             });
