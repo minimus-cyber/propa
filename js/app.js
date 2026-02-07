@@ -203,15 +203,6 @@ class OmniPAApp {
                 `
             };
         });
-
-        // Merge with existing info popup handler
-        const originalShowInfoPopup = this.showInfoPopup.bind(this);
-        this.showInfoPopup = (type, data) => {
-            if (!data && this.sourceInfoData[type]) {
-                data = this.sourceInfoData[type];
-            }
-            originalShowInfoPopup(type, data);
-        };
     }
 
     async performUnifiedSearch() {
@@ -943,6 +934,11 @@ class OmniPAApp {
     }
 
     showInfoPopup(type, data) {
+        // Check sourceInfoData if data not provided
+        if (!data && this.sourceInfoData && this.sourceInfoData[type]) {
+            data = this.sourceInfoData[type];
+        }
+        
         if (!data) return;
         
         const popup = document.getElementById('infoPopup');
