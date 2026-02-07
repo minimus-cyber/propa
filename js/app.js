@@ -620,8 +620,11 @@ window.showToast = function(message, type) {
     }, 3000);
 };
 
-// Initialize app when DOM is loaded
+// Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new OmniPAApp();
-    console.log('OmniPA Application initialized');
+    // Initialize instances
+    window.storageManager = new StorageManager();
+    window.authManager = new AuthManager();
+    window.exportManager = new ExportManager();
+    window.app = new OmniPAApp();
 });
