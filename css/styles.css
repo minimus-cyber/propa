@@ -6,16 +6,18 @@
 }
 
 :root {
-    --primary-color: #0066CC;
-    --secondary-color: #004C99;
+    --primary-color: #2d8659;
+    --secondary-color: #1e5f3f;
     --accent-color: #FF9900;
     --success-color: #28a745;
     --danger-color: #dc3545;
     --text-color: #333;
     --text-light: #666;
     --border-color: #ddd;
-    --bg-light: #f8f9fa;
-    --bg-white: #ffffff;
+    --bg-light: #e8e8e8;
+    --bg-medium: #c8c8c8;
+    --bg-dark: #a0a0a0;
+    --bg-white: #f5f5f5;
     --shadow: 0 2px 8px rgba(0,0,0,0.1);
     --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
 }
@@ -23,7 +25,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: var(--text-color);
-    background-color: var(--bg-light);
+    background-color: #d0d0d0;
     line-height: 1.6;
 }
 
@@ -867,6 +869,170 @@ body {
     font-size: 0.9rem;
 }
 
+/* Info Icons */
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    margin-left: 6px;
+    transition: all 0.3s ease;
+}
+
+.info-icon:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+/* Info Popup */
+.info-popup {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+.info-popup.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.info-popup-content {
+    background-color: var(--bg-white);
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+    position: relative;
+}
+
+.info-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.info-popup-header h3 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.info-popup-body {
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.info-popup-body p {
+    margin-bottom: 10px;
+}
+
+.info-popup-body ul {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.info-popup-body ul li {
+    margin-bottom: 5px;
+}
+
+/* Guided Search */
+.guided-search-container {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.guided-search-container h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.guided-search-question {
+    background-color: var(--bg-white);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.guided-search-question p {
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.guided-search-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.guided-option-btn {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    background-color: transparent;
+    color: var(--primary-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.guided-option-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.guided-option-btn.selected {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.guided-search-result {
+    background-color: var(--bg-white);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    display: none;
+}
+
+.guided-search-result.active {
+    display: block;
+}
+
+.guided-search-result h5 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.guided-search-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
 @media (max-width: 768px) {
     .user-name {
         display: none;
@@ -879,5 +1045,13 @@ body {
     .unified-search-container h3,
     .source-searches-container h3 {
         font-size: 1.2rem;
+    }
+    
+    .guided-search-options {
+        flex-direction: column;
+    }
+    
+    .guided-option-btn {
+        width: 100%;
     }
 }
