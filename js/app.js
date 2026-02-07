@@ -626,5 +626,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.storageManager = new StorageManager();
     window.authManager = new AuthManager();
     window.exportManager = new ExportManager();
+    
+    // Ensure searchEngine is globally available
+    // (it's already instantiated in search.js, but we make sure it's accessible)
+    if (typeof searchEngine !== 'undefined') {
+        window.searchEngine = searchEngine;
+    }
+    
     window.app = new OmniPAApp();
 });
