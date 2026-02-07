@@ -524,7 +524,10 @@ class SearchEngine {
 
     // Get all sources
     getAllSources() {
-        return Object.values(this.dataSources);
+        // Return sources sorted alphabetically by name
+        return Object.values(this.dataSources).sort((a, b) => 
+            a.name.localeCompare(b.name, 'it')
+        );
     }
 
     // Format date for display

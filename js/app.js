@@ -12,6 +12,8 @@ class OmniPAApp {
         this.loadSavedData();
         this.updateUserUI();
         this.renderSourceSearches();
+        this.initGuidedSearch();
+        this.initInfoPopups();
     }
 
     // Helper method to escape HTML and prevent XSS
@@ -127,7 +129,7 @@ class OmniPAApp {
             <div class="source-search-item">
                 <div class="source-header">
                     <i class="fas fa-database"></i>
-                    <h4>${this.escapeHtml(source.name)}</h4>
+                    <h4>${this.escapeHtml(source.name)}<span class="info-icon" data-info="source-${source.id}">i</span></h4>
                 </div>
                 <div class="source-search-bar">
                     <input 
@@ -159,6 +161,57 @@ class OmniPAApp {
                 }
             });
         });
+
+        // Add info data for source-specific info icons
+        this.addSourceInfoData(sources);
+    }
+
+    addSourceInfoData(sources) {
+        // Create a map of source-specific info that will be used by the info popup
+        this.sourceInfoData = {};
+        
+        const sourceDescriptions = {
+            'datigov': 'Catalogo nazionale dei dati aperti della PA. Documenti tipici: dataset CSV, JSON, XML su vari temi (demografia, economia, ambiente, ecc.)',
+            'normattiva': 'Banca dati della normativa italiana. Documenti tipici: leggi, decreti legislativi, decreti ministeriali, circolari.',
+            'gazzetta': 'Pubblicazioni ufficiali della Repubblica Italiana. Documenti tipici: Gazzetta Ufficiale, bandi di concorso, decreti, avvisi.',
+            'ipa': 'Indice delle Pubbliche Amministrazioni italiane. Documenti tipici: anagrafica enti pubblici, contatti, organizzazione.',
+            'salute': 'Open Data del Ministero della Salute. Documenti tipici: dati sanitari, strutture ospedaliere, farmaci, prevenzione.',
+            'scuola': 'Dati aperti del sistema scolastico italiano. Documenti tipici: anagrafica scuole, iscrizioni, personale docente, risultati.',
+            'inps': 'Open Data INPS su previdenza e assistenza. Documenti tipici: dati pensioni, ammortizzatori sociali, prestazioni.',
+            'inail': 'Dati aperti su sicurezza e salute sul lavoro. Documenti tipici: infortuni, malattie professionali, prevenzione.',
+            'istat': 'Statistiche ufficiali e linked open data. Documenti tipici: dati demografici, economici, sociali, territoriali.',
+            'anac': 'Banca Dati Nazionale dei Contratti Pubblici. Documenti tipici: appalti, contratti, gare, anticorruzione.',
+            'ispra': 'Annuario dati ambientali ISPRA. Documenti tipici: qualità aria, acqua, biodiversità, clima, inquinamento.',
+            'geoportale': 'Repertorio Nazionale dei Dati Territoriali. Documenti tipici: cartografie, ortofoto, dati GIS, mappe.',
+            'opencoesione': 'Politiche di coesione in Italia. Documenti tipici: progetti finanziati, fondi europei, sviluppo territoriale.',
+            'opencantieri': 'Monitoraggio opere pubbliche. Documenti tipici: infrastrutture, cantieri, stato avanzamento lavori.',
+            'soldipubblici': 'Portale della trasparenza dei conti pubblici. Documenti tipici: spesa pubblica, bilanci, trasparenza.',
+            'openbdap': 'Banca Dati delle Amministrazioni Pubbliche. Documenti tipici: dati finanziari, bilanci, personale PA.',
+            'registroimprese': 'Dati aperti del Registro delle Imprese. Documenti tipici: imprese italiane, bilanci, partecipazioni.',
+            'agenziaentrate': 'Statistiche fiscali e dati catastali. Documenti tipici: OMI, catasto, dichiarazioni fiscali.',
+            'dogane': 'Open Data su commercio estero e accise. Documenti tipici: import/export, statistiche doganali.',
+            'innovazione': 'Innovazione e trasformazione digitale. Documenti tipici: PNRR, strategie digitali, innovazione PA.'
+        };
+
+        sources.forEach(source => {
+            this.sourceInfoData[`source-${source.id}`] = {
+                title: source.name,
+                content: `
+                    <p><strong>${this.escapeHtml(source.description)}</strong></p>
+                    <p style="margin-top: 10px;">${sourceDescriptions[source.id] || 'Fonte ufficiale della Pubblica Amministrazione italiana.'}</p>
+                    <p style="margin-top: 10px;"><strong>URL:</strong> <a href="${source.url}" target="_blank" rel="noopener noreferrer">${source.url}</a></p>
+                `
+            };
+        });
+
+        // Merge with existing info popup handler
+        const originalShowInfoPopup = this.showInfoPopup.bind(this);
+        this.showInfoPopup = (type, data) => {
+            if (!data && this.sourceInfoData[type]) {
+                data = this.sourceInfoData[type];
+            }
+            originalShowInfoPopup(type, data);
+        };
     }
 
     async performUnifiedSearch() {
@@ -606,6 +659,304 @@ class OmniPAApp {
             this.closeModal('userModal');
             this.updateUserUI();
         }
+    }
+
+    // Guided Search Methods
+    initGuidedSearch() {
+        this.guidedSearchState = {
+            step: 0,
+            answers: {},
+            recommendedSource: null
+        };
+        this.renderGuidedSearchQuestion();
+    }
+
+    renderGuidedSearchQuestion() {
+        const container = document.getElementById('guidedSearchQuestions');
+        const step = this.guidedSearchState.step;
+
+        const questions = [
+            {
+                question: "Che tipo di informazioni stai cercando?",
+                options: [
+                    { value: 'normativa', label: 'Leggi e Normative' },
+                    { value: 'dati', label: 'Dati e Statistiche' },
+                    { value: 'documenti', label: 'Documenti Amministrativi' },
+                    { value: 'servizi', label: 'Servizi e Informazioni PA' }
+                ]
+            },
+            {
+                question: "Quale settore ti interessa?",
+                options: [
+                    { value: 'salute', label: 'Salute' },
+                    { value: 'economia', label: 'Economia e Finanze' },
+                    { value: 'ambiente', label: 'Ambiente' },
+                    { value: 'lavoro', label: 'Lavoro e Previdenza' },
+                    { value: 'istruzione', label: 'Istruzione' },
+                    { value: 'territorio', label: 'Territorio e Infrastrutture' },
+                    { value: 'altro', label: 'Altro' }
+                ]
+            }
+        ];
+
+        if (step < questions.length) {
+            const q = questions[step];
+            container.innerHTML = `
+                <div class="guided-search-question">
+                    <p><strong>Domanda ${step + 1}:</strong> ${q.question}</p>
+                    <div class="guided-search-options">
+                        ${q.options.map(opt => `
+                            <button class="guided-option-btn" data-value="${opt.value}">
+                                ${opt.label}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners to option buttons
+            document.querySelectorAll('.guided-option-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const value = e.currentTarget.dataset.value;
+                    this.handleGuidedSearchAnswer(step, value);
+                });
+            });
+        } else {
+            this.showGuidedSearchResult();
+        }
+    }
+
+    handleGuidedSearchAnswer(step, value) {
+        this.guidedSearchState.answers[step] = value;
+        
+        // Select the button visually
+        document.querySelectorAll('.guided-option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if (btn.dataset.value === value) {
+                btn.classList.add('selected');
+            }
+        });
+
+        // Move to next question after a short delay
+        setTimeout(() => {
+            this.guidedSearchState.step++;
+            this.renderGuidedSearchQuestion();
+        }, 300);
+    }
+
+    showGuidedSearchResult() {
+        const container = document.getElementById('guidedSearchQuestions');
+        const answers = this.guidedSearchState.answers;
+        
+        // Determine recommended source based on answers
+        let recommendedSource = this.determineRecommendedSource(answers);
+        this.guidedSearchState.recommendedSource = recommendedSource;
+
+        const sourceInfo = searchEngine.getSourceInfo(recommendedSource);
+        
+        container.innerHTML = `
+            <div class="guided-search-result active">
+                <h5><i class="fas fa-lightbulb"></i> Consiglio:</h5>
+                <p>In base alle tue risposte, ti consigliamo di cercare in <strong>${this.escapeHtml(sourceInfo.name)}</strong>.</p>
+                <p style="color: var(--text-light); font-size: 0.9rem;">${this.escapeHtml(sourceInfo.description)}</p>
+                <div class="guided-search-actions">
+                    <input 
+                        type="text" 
+                        id="guidedSearchInput" 
+                        class="source-search-input" 
+                        placeholder="Inserisci il termine di ricerca..."
+                        style="flex: 1;"
+                    >
+                    <button class="btn btn-primary" id="startGuidedSearch">
+                        <i class="fas fa-search"></i> Avvia Ricerca
+                    </button>
+                    <button class="btn btn-secondary" id="resetGuidedSearch">
+                        <i class="fas fa-redo"></i> Ricomincia
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Add event listeners
+        document.getElementById('startGuidedSearch').addEventListener('click', () => {
+            this.executeGuidedSearch();
+        });
+
+        document.getElementById('guidedSearchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.executeGuidedSearch();
+            }
+        });
+
+        document.getElementById('resetGuidedSearch').addEventListener('click', () => {
+            this.resetGuidedSearch();
+        });
+    }
+
+    determineRecommendedSource(answers) {
+        const type = answers[0];
+        const sector = answers[1];
+
+        // Logic to determine source based on answers
+        if (type === 'normativa') {
+            return 'normattiva';
+        } else if (type === 'documenti') {
+            return 'gazzetta';
+        } else if (type === 'servizi') {
+            return 'ipa';
+        } else {
+            // For 'dati', use sector to determine
+            const sectorMap = {
+                'salute': 'salute',
+                'economia': 'datigov',
+                'ambiente': 'ispra',
+                'lavoro': 'inps',
+                'istruzione': 'scuola',
+                'territorio': 'geoportale',
+                'altro': 'datigov'
+            };
+            return sectorMap[sector] || 'datigov';
+        }
+    }
+
+    async executeGuidedSearch() {
+        const query = document.getElementById('guidedSearchInput').value.trim();
+        
+        if (!query) {
+            this.showToast('Inserisci un termine di ricerca', 'error');
+            return;
+        }
+
+        const sourceId = this.guidedSearchState.recommendedSource;
+        
+        // Set filter to specific source
+        this.currentFilters = {
+            source: sourceId,
+            category: document.getElementById('categoryFilter').value,
+            dateFrom: document.getElementById('dateFrom').value,
+            dateTo: document.getElementById('dateTo').value
+        };
+
+        // Show loading
+        this.showLoading(true);
+        document.getElementById('resultsSection').classList.add('active');
+
+        try {
+            const searchResult = await searchEngine.search(query, this.currentFilters);
+            this.currentResults = searchResult.results;
+
+            storageManager.addToHistory(query, this.currentFilters);
+            this.displayResults(searchResult);
+            exportManager.setResults(this.currentResults);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showToast('Errore durante la ricerca', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    resetGuidedSearch() {
+        this.guidedSearchState = {
+            step: 0,
+            answers: {},
+            recommendedSource: null
+        };
+        this.renderGuidedSearchQuestion();
+    }
+
+    // Info Popup Methods
+    initInfoPopups() {
+        const infoData = {
+            'portal-info': {
+                title: 'Cos\'è OmniPA?',
+                content: `
+                    <p><strong>OmniPA</strong> è un motore di ricerca unificato per la Pubblica Amministrazione italiana.</p>
+                    <p>Permette di cercare simultaneamente dati e documenti da oltre 20 fonti ufficiali della PA, tra cui:</p>
+                    <ul>
+                        <li>Portali di Open Data (Dati.gov.it, INPS, ISTAT, ecc.)</li>
+                        <li>Banche dati normative (Normattiva, Gazzetta Ufficiale)</li>
+                        <li>Portali tematici (Salute, Scuola, Ambiente, ecc.)</li>
+                        <li>Sistemi di monitoraggio (OpenCoesione, Open Cantieri)</li>
+                    </ul>
+                    <p>Il portale semplifica l'accesso alle informazioni pubbliche, risparmiando tempo e migliorando l'efficienza nella ricerca.</p>
+                `
+            },
+            'login-info': {
+                title: 'Perché Registrarsi?',
+                content: `
+                    <p>Registrandoti su OmniPA potrai:</p>
+                    <ul>
+                        <li><strong>Salvare la cronologia</strong> delle tue ricerche attraverso sessioni diverse</li>
+                        <li><strong>Sincronizzare i segnalibri</strong> su tutti i tuoi dispositivi</li>
+                        <li><strong>Accedere alla cronologia</strong> anche da altri computer</li>
+                        <li><strong>Ricevere notifiche</strong> su nuovi dataset di tuo interesse (in arrivo)</li>
+                        <li><strong>Condividere ricerche</strong> con i colleghi (in arrivo)</li>
+                    </ul>
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">
+                        <em>Nota: Attualmente cronologia e segnalibri sono salvati solo in locale nel browser. 
+                        La registrazione permetterà la sincronizzazione cloud nelle prossime versioni.</em>
+                    </p>
+                `
+            },
+            'unified-search-info': {
+                title: 'Ricerca Unificata',
+                content: `
+                    <p>La <strong>ricerca unificata</strong> cerca simultaneamente in tutte le fonti disponibili.</p>
+                    <p><strong>Come funziona:</strong></p>
+                    <ul>
+                        <li>Inserisci un termine di ricerca generico</li>
+                        <li>Il sistema interroga tutte le fonti PA disponibili</li>
+                        <li>I risultati vengono aggregati e mostrati insieme</li>
+                        <li>Ogni risultato mostra la fonte di provenienza</li>
+                    </ul>
+                    <p><strong>Ideale per:</strong> Ricerche esplorative, quando non si sa esattamente in quale fonte cercare, o quando si vogliono confrontare dati da fonti diverse.</p>
+                `
+            }
+        };
+
+        // Add click listeners to all info icons
+        document.addEventListener('click', (e) => {
+            const infoIcon = e.target.closest('.info-icon');
+            if (infoIcon) {
+                e.preventDefault();
+                e.stopPropagation();
+                const infoType = infoIcon.dataset.info;
+                this.showInfoPopup(infoType, infoData[infoType]);
+            }
+        });
+
+        // Close info popup
+        document.getElementById('closeInfoPopup').addEventListener('click', () => {
+            this.closeInfoPopup();
+        });
+
+        document.getElementById('infoPopup').addEventListener('click', (e) => {
+            if (e.target.id === 'infoPopup') {
+                this.closeInfoPopup();
+            }
+        });
+    }
+
+    showInfoPopup(type, data) {
+        if (!data) return;
+        
+        const popup = document.getElementById('infoPopup');
+        const title = document.getElementById('infoPopupTitle');
+        const body = document.getElementById('infoPopupBody');
+
+        title.textContent = data.title;
+        body.innerHTML = data.content;
+
+        popup.classList.add('active');
+    }
+
+    closeInfoPopup() {
+        document.getElementById('infoPopup').classList.remove('active');
     }
 }
 

@@ -16,7 +16,7 @@
         <div class="container">
             <div class="logo">
                 <i class="fas fa-search-location"></i>
-                <h1>OmniPA</h1>
+                <h1>OmniPA<span class="info-icon" data-info="portal-info">i</span></h1>
             </div>
             <nav class="nav">
                 <button class="btn btn-icon" id="historyBtn" title="Cronologia">
@@ -27,7 +27,7 @@
                 </button>
                 <div id="userSection">
                     <button class="btn btn-icon" id="userBtn" title="Utente">
-                        <i class="fas fa-user"></i>
+                        <i class="fas fa-user"></i><span class="info-icon" data-info="login-info">i</span>
                     </button>
                 </div>
             </nav>
@@ -58,8 +58,17 @@
                             autocomplete="off"
                         >
                         <button class="btn btn-primary search-btn" id="unifiedSearchBtn">
-                            Cerca in tutte le fonti
+                            Cerca in tutte le fonti<span class="info-icon" data-info="unified-search-info">i</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Guided Search -->
+                <div class="guided-search-container">
+                    <h4><i class="fas fa-compass"></i> Ricerca Guidata</h4>
+                    <p style="margin-bottom: 15px; color: var(--text-light);">Non sai dove cercare? Rispondi ad alcune domande per trovare la fonte giusta.</p>
+                    <div id="guidedSearchQuestions">
+                        <!-- Questions will be dynamically inserted here -->
                     </div>
                 </div>
 
@@ -283,6 +292,19 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
+
+    <!-- Info Popup -->
+    <div id="infoPopup" class="info-popup">
+        <div class="info-popup-content">
+            <div class="info-popup-header">
+                <h3 id="infoPopupTitle">Informazioni</h3>
+                <button class="btn-close" id="closeInfoPopup">&times;</button>
+            </div>
+            <div class="info-popup-body" id="infoPopupBody">
+                <!-- Content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
